@@ -5,27 +5,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Liquid Glass" />
-  <meta name="theme-color" content="#07080c" />
-  <title>Liquid Glass Player</title>
+  <meta name="apple-mobile-web-app-title" content="Material Music" />
+  <meta name="theme-color" id="metaThemeColor" content="#141218" />
+  <title>Material 3 Music Player</title>
   <style>
     :root {
-      --bg-base: #07080c;
-      --accent-1: #6e56cf;
-      --accent-2: #0091ff;
-      --accent-3: #e5484d;
-      --accent-glow: rgba(110, 86, 207, 0.55);
-      --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%);
-      --glass-bg-strong: linear-gradient(145deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.07) 100%);
-      --glass-border: rgba(255, 255, 255, 0.22);
-      --glass-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -1px 1px rgba(255, 255, 255, 0.08);
-      --glass-shadow: 0 24px 48px rgba(0, 0, 0, 0.48);
-      --text-primary: #ffffff;
-      --text-secondary: rgba(255, 255, 255, 0.68);
-      --text-muted: rgba(255, 255, 255, 0.42);
+      /* Material 3 Dynamic Color Tokens (Default Dark Baseline) */
+      --md-sys-color-primary: #d0bcff;
+      --md-sys-color-on-primary: #381e72;
+      --md-sys-color-primary-container: #4f378b;
+      --md-sys-color-on-primary-container: #eaddff;
+      --md-sys-color-secondary: #ccc2dc;
+      --md-sys-color-on-secondary: #332d41;
+      --md-sys-color-secondary-container: #4a4458;
+      --md-sys-color-on-secondary-container: #e8def8;
+      --md-sys-color-tertiary: #efb8c8;
+      --md-sys-color-tertiary-container: #633b48;
+      --md-sys-color-on-tertiary-container: #ffd8e4;
+      --md-sys-color-surface: #141218;
+      --md-sys-color-surface-container-lowest: #0f0d13;
+      --md-sys-color-surface-container-low: #1d1b20;
+      --md-sys-color-surface-container: #211f26;
+      --md-sys-color-surface-container-high: #2b2930;
+      --md-sys-color-surface-container-highest: #36343b;
+      --md-sys-color-on-surface: #e6e0e9;
+      --md-sys-color-on-surface-variant: #cac4d0;
+      --md-sys-color-outline: #938f99;
+      --md-sys-color-outline-variant: #49454f;
+      --md-sys-color-inverse-surface: #e6e0e9;
+      --md-sys-color-inverse-on-surface: #322f35;
+
+      /* Material 3 Shape & Motion Tokens */
+      --md-sys-shape-extra-small: 4px;
+      --md-sys-shape-small: 8px;
+      --md-sys-shape-medium: 12px;
+      --md-sys-shape-large: 16px;
+      --md-sys-shape-extra-large: 28px;
+      --md-sys-motion-standard: 0.45s cubic-bezier(0.2, 0, 0, 1);
+      --md-sys-motion-emphasized: 0.5s cubic-bezier(0.05, 0.7, 0.1, 1);
+
       --safe-top: env(safe-area-inset-top, 20px);
-      --safe-bottom: env(safe-area-inset-bottom, 20px);
-      --color-transition: 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+      --safe-bottom: env(safe-area-inset-bottom, 16px);
     }
 
     * {
@@ -44,184 +64,107 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background-color: var(--bg-base);
-      color: var(--text-primary);
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      background-color: var(--md-sys-color-surface);
+      color: var(--md-sys-color-on-surface);
+      font-family: -apple-system, BlinkMacSystemFont, "Roboto", "SF Pro Display", "Segoe UI", sans-serif;
       -webkit-font-smoothing: antialiased;
+      transition: background-color var(--md-sys-motion-standard), color var(--md-sys-motion-standard);
     }
 
-    /* Animated Liquid Ambient Background */
-    .liquid-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-      background: var(--bg-base);
-      pointer-events: none;
-    }
-
-    .liquid-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(85px);
-      opacity: 0.72;
-      transition: background var(--color-transition), transform 6s ease-in-out;
-      will-change: transform, background;
-    }
-
-    .orb-1 {
-      width: 78vw;
-      height: 78vw;
-      max-width: 440px;
-      max-height: 440px;
-      top: -10%;
-      left: -12%;
-      background: var(--accent-1);
-      animation: floatOrb1 14s infinite alternate ease-in-out;
-    }
-
-    .orb-2 {
-      width: 82vw;
-      height: 82vw;
-      max-width: 460px;
-      max-height: 460px;
-      bottom: 8%;
-      right: -18%;
-      background: var(--accent-2);
-      animation: floatOrb2 17s infinite alternate ease-in-out;
-    }
-
-    .orb-3 {
-      width: 65vw;
-      height: 65vw;
-      max-width: 360px;
-      max-height: 360px;
-      top: 38%;
-      left: 18%;
-      background: var(--accent-3);
-      opacity: 0.48;
-      animation: floatOrb3 19s infinite alternate ease-in-out;
-    }
-
-    .noise-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      opacity: 0.035;
-      background-image: radial-gradient(rgba(255,255,255,0.8) 1px, transparent 0);
-      background-size: 24px 24px;
-    }
-
-    @keyframes floatOrb1 {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(12%, 14%) scale(1.14); }
-    }
-    @keyframes floatOrb2 {
-      0% { transform: translate(0, 0) scale(1.05); }
-      100% { transform: translate(-14%, -10%) scale(0.92); }
-    }
-    @keyframes floatOrb3 {
-      0% { transform: translate(0, 0) scale(0.95); }
-      100% { transform: translate(-10%, 12%) scale(1.12); }
-    }
-
-    /* Liquid Glass Surface Primitive */
-    .glass-panel {
-      background: var(--glass-bg);
-      backdrop-filter: blur(42px) saturate(190%);
-      -webkit-backdrop-filter: blur(42px) saturate(190%);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--glass-highlight), var(--glass-shadow);
-      position: relative;
-    }
-
-    .glass-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      padding: 1px;
-      background: linear-gradient(155deg, rgba(255,255,255,0.45), rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.18));
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
-
-    .glass-btn {
-      background: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
-      backdrop-filter: blur(24px) saturate(180%);
-      -webkit-backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255,255,255,0.24);
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.42), 0 8px 20px rgba(0,0,0,0.28);
-      color: var(--text-primary);
-      cursor: pointer;
-      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease, box-shadow 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .glass-btn:active {
-      transform: scale(0.92);
-      background: linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0.1));
-    }
-
-    /* App Layout */
+    /* App Shell */
     .app-shell {
-      position: relative;
-      z-index: 2;
       width: 100%;
       height: 100%;
       max-width: 520px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      padding-top: calc(var(--safe-top) + 8px);
-      padding-bottom: calc(var(--safe-bottom) + 10px);
-      padding-left: 16px;
-      padding-right: 16px;
+      background-color: var(--md-sys-color-surface);
+      padding-top: calc(var(--safe-top) + 4px);
+      transition: background-color var(--md-sys-motion-standard);
     }
 
-    /* Top Status Pill */
-    .top-bar {
+    /* Material 3 Top App Bar */
+    .m3-top-bar {
+      height: 56px;
+      padding: 0 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
       flex-shrink: 0;
+      gap: 8px;
     }
 
-    .brand-pill {
-      display: inline-flex;
+    .m3-app-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0;
+      color: var(--md-sys-color-on-surface);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .m3-color-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--md-sys-color-primary);
+      transition: background-color var(--md-sys-motion-standard);
+    }
+
+    .m3-top-actions {
+      display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-1);
-      box-shadow: 0 0 10px var(--accent-1);
-      transition: background var(--color-transition), box-shadow var(--color-transition);
-    }
-
-    .source-badge {
-      padding: 6px 12px;
-      border-radius: 999px;
+    /* M3 Assist Chip */
+    .m3-assist-chip {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: var(--md-sys-shape-small);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      background-color: var(--md-sys-color-surface-container-low);
+      color: var(--md-sys-color-on-surface);
       font-size: 12px;
       font-weight: 500;
-      color: var(--text-secondary);
+      letter-spacing: 0.1px;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+    }
+
+    /* M3 Icon Button */
+    .m3-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: var(--md-sys-color-on-surface-variant);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    }
+
+    .m3-icon-btn:active {
+      transform: scale(0.92);
+      background-color: var(--md-sys-color-surface-container-highest);
+    }
+
+    .m3-icon-btn.tonal {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .m3-icon-btn.selected {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
     }
 
     /* Views Container */
@@ -235,24 +178,26 @@
     .view-screen {
       position: absolute;
       inset: 0;
+      padding: 4px 16px 12px;
       display: flex;
       flex-direction: column;
       opacity: 0;
       pointer-events: none;
-      transform: translateY(14px) scale(0.98);
-      transition: opacity 0.35s ease, transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(10px);
+      transition: opacity 0.28s ease, transform 0.32s cubic-bezier(0.2, 0, 0, 1);
     }
 
     .view-screen.active {
       opacity: 1;
       pointer-events: auto;
-      transform: translateY(0) scale(1);
+      transform: translateY(0);
     }
 
-    /* PLAYER VIEW */
+    /* =========================================================================
+       VIEW 1: MATERIAL 3 PLAYER
+       ========================================================================= */
     .player-view {
       justify-content: space-between;
-      padding-bottom: 8px;
     }
 
     .artwork-stage {
@@ -261,48 +206,37 @@
       align-items: center;
       justify-content: center;
       min-height: 0;
-      padding: 6px 0;
+      padding: 4px 0;
     }
 
-    .artwork-frame {
-      position: relative;
-      width: min(74vw, 300px);
-      height: min(74vw, 300px);
-      border-radius: 32px;
-      padding: 8px;
-      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--color-transition);
-      box-shadow: 0 28px 60px -12px var(--accent-glow), inset 0 1px 1px rgba(255,255,255,0.45);
+    .m3-artwork-card {
+      width: min(74vw, 296px);
+      height: min(74vw, 296px);
+      border-radius: var(--md-sys-shape-extra-large);
+      background-color: var(--md-sys-color-surface-container-high);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      overflow: hidden;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
+      transition: transform var(--md-sys-motion-emphasized), border-color var(--md-sys-motion-standard);
     }
 
-    .artwork-frame.playing {
-      transform: scale(1.03);
+    .m3-artwork-card.playing {
+      transform: scale(1.025);
     }
 
     .artwork-img {
       width: 100%;
       height: 100%;
-      border-radius: 25px;
       object-fit: cover;
       display: block;
-      background: rgba(255,255,255,0.06);
-      transition: opacity 0.4s ease;
     }
 
-    .artwork-sheen {
-      position: absolute;
-      inset: 8px;
-      border-radius: 25px;
-      background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 48%);
-      pointer-events: none;
-    }
-
-    .meta-block {
-      margin-top: 8px;
-      margin-bottom: 10px;
+    .meta-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      margin: 10px 0 12px;
     }
 
     .track-titles {
@@ -310,20 +244,24 @@
       flex: 1;
     }
 
+    /* M3 Headline Small */
     .track-title {
       font-size: 22px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
+      font-weight: 600;
+      line-height: 28px;
+      color: var(--md-sys-color-on-surface);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      margin: 0 0 4px 0;
+      margin: 0 0 2px 0;
     }
 
+    /* M3 Body Medium */
     .track-artist {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      color: var(--md-sys-color-on-surface-variant);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -336,155 +274,176 @@
       flex-shrink: 0;
     }
 
-    .icon-circle-btn {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+    /* M3 Filled Surface Container Card for Controls */
+    .m3-controls-card {
+      background-color: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-extra-large);
+      padding: 16px 18px 16px;
+      transition: background-color var(--md-sys-motion-standard);
     }
 
-    .icon-circle-btn.active-state {
-      background: linear-gradient(145deg, var(--accent-1), var(--accent-2));
-      border-color: rgba(255,255,255,0.5);
-      box-shadow: 0 0 18px var(--accent-glow);
+    /* M3 Slider */
+    .m3-slider-wrap {
+      margin-bottom: 12px;
     }
 
-    /* Controls Card */
-    .controls-card {
-      border-radius: 30px;
-      padding: 16px 18px 18px;
-    }
-
-    .progress-wrap {
-      margin-bottom: 14px;
-    }
-
-    .liquid-slider {
+    .m3-slider {
       -webkit-appearance: none;
       appearance: none;
       width: 100%;
       height: 6px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.16);
+      background: var(--md-sys-color-surface-container-highest);
       outline: none;
       cursor: pointer;
-      position: relative;
     }
 
-    .liquid-slider::-webkit-slider-thumb {
+    /* M3 Vertical Pill Handle */
+    .m3-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: 0 0 12px rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.4);
+      width: 6px;
+      height: 22px;
+      border-radius: 999px;
+      background: var(--md-sys-color-primary);
+      box-shadow: 0 0 0 3px var(--md-sys-color-surface-container);
       cursor: pointer;
-      transition: transform 0.15s ease;
+      transition: transform 0.15s ease, background-color var(--md-sys-motion-standard);
     }
 
-    .liquid-slider::-webkit-slider-thumb:active {
-      transform: scale(1.3);
+    .m3-slider::-webkit-slider-thumb:active {
+      transform: scaleY(1.2) scaleX(1.3);
     }
 
     .time-row {
       display: flex;
       justify-content: space-between;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface-variant);
       margin-top: 6px;
       font-variant-numeric: tabular-nums;
     }
 
+    /* M3 Transport Controls */
     .transport-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 2px 4px;
+      padding: 4px 2px;
     }
 
-    .transport-btn {
-      width: 46px;
-      height: 46px;
-      border-radius: 50%;
+    .m3-skip-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 18px;
+      border: none;
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color var(--md-sys-motion-standard), color var(--md-sys-motion-standard);
     }
 
-    .transport-btn.small {
-      width: 38px;
-      height: 38px;
-      color: var(--text-secondary);
+    .m3-skip-btn:active {
+      transform: scale(0.92);
     }
 
-    .transport-btn.small.toggled {
-      color: #fff;
-      background: rgba(255,255,255,0.22);
-      border-color: rgba(255,255,255,0.45);
+    /* Signature M3 Squircle Play/Pause FAB */
+    .m3-play-fab {
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      border: none;
+      background-color: var(--md-sys-color-primary-container);
+      color: var(--md-sys-color-on-primary-container);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+      transition: border-radius 0.35s cubic-bezier(0.2, 0, 0, 1), transform 0.15s ease, background-color var(--md-sys-motion-standard), color var(--md-sys-motion-standard);
     }
 
-    .play-orb-btn {
-      width: 66px;
-      height: 66px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, rgba(255,255,255,0.34), rgba(255,255,255,0.12));
-      border: 1px solid rgba(255,255,255,0.48);
-      box-shadow: inset 0 2px 3px rgba(255,255,255,0.65), 0 12px 28px var(--accent-glow);
+    .m3-play-fab.is-playing {
+      border-radius: 36px;
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
     }
 
-    .mini-lyric-preview {
+    .m3-play-fab:active {
+      transform: scale(0.94);
+    }
+
+    /* M3 Lyric Preview Banner */
+    .m3-lyric-banner {
       margin-top: 12px;
-      padding: 8px 12px;
-      border-radius: 16px;
-      background: rgba(0, 0, 0, 0.22);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 14px;
+      border-radius: var(--md-sys-shape-large);
+      background-color: var(--md-sys-color-surface-container-high);
+      color: var(--md-sys-color-on-surface-variant);
       font-size: 13px;
-      color: var(--text-secondary);
+      font-weight: 500;
       text-align: center;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
+      transition: background-color var(--md-sys-motion-standard);
     }
 
-    /* LYRICS VIEW */
-    .lyrics-card {
+    /* =========================================================================
+       VIEW 2: MATERIAL 3 LYRICS
+       ========================================================================= */
+    .m3-lyrics-card {
       flex: 1;
-      border-radius: 30px;
+      background-color: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-extra-large);
       padding: 16px;
       display: flex;
       flex-direction: column;
       min-height: 0;
-      margin-bottom: 8px;
     }
 
-    .lyrics-search-bar {
+    .lyrics-search-row {
       display: flex;
       gap: 8px;
       margin-bottom: 12px;
       flex-shrink: 0;
     }
 
-    .glass-input {
+    /* M3 Outlined Text Field */
+    .m3-input {
       flex: 1;
-      background: rgba(0, 0, 0, 0.28);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 14px;
-      padding: 10px 12px;
-      color: #fff;
-      font-size: 13px;
+      height: 44px;
+      background-color: var(--md-sys-color-surface-container-lowest);
+      border: 1px solid var(--md-sys-color-outline);
+      border-radius: var(--md-sys-shape-medium);
+      padding: 0 14px;
+      color: var(--md-sys-color-on-surface);
+      font-size: 14px;
       outline: none;
+      transition: border-color 0.2s ease, background-color var(--md-sys-motion-standard);
     }
 
-    .glass-input::placeholder {
-      color: var(--text-muted);
+    .m3-input:focus {
+      border-color: var(--md-sys-color-primary);
+      border-width: 2px;
+      padding: 0 13px;
+    }
+
+    .m3-input::placeholder {
+      color: var(--md-sys-color-on-surface-variant);
+      opacity: 0.7;
     }
 
     .lyrics-scroll {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 8px 48px;
+      padding: 12px 6px 40px;
       scroll-behavior: smooth;
-      mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
     }
 
     .lyrics-scroll::-webkit-scrollbar {
@@ -493,33 +452,36 @@
 
     .lyric-line {
       font-size: 21px;
-      font-weight: 700;
-      line-height: 1.45;
+      font-weight: 600;
+      line-height: 1.42;
       margin-bottom: 16px;
-      color: rgba(255, 255, 255, 0.34);
-      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      color: var(--md-sys-color-on-surface-variant);
+      opacity: 0.45;
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
       cursor: pointer;
       transform-origin: left center;
     }
 
     .lyric-line.active {
-      color: #ffffff;
-      transform: scale(1.04);
-      text-shadow: 0 0 24px var(--accent-glow);
+      color: var(--md-sys-color-primary);
+      opacity: 1;
+      transform: scale(1.03);
     }
 
     .lyric-line.plain {
-      font-size: 16px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.85);
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--md-sys-color-on-surface);
+      opacity: 0.9;
       cursor: default;
       margin-bottom: 10px;
     }
 
-    /* LIBRARY & CLOUD SYNC VIEW */
+    /* =========================================================================
+       VIEW 3: MATERIAL 3 LIBRARY & CLOUD SYNC
+       ========================================================================= */
     .library-view {
       gap: 10px;
-      padding-bottom: 8px;
     }
 
     .sync-grid {
@@ -529,135 +491,75 @@
       flex-shrink: 0;
     }
 
-    .sync-btn {
-      padding: 11px 12px;
-      border-radius: 18px;
-      font-size: 13px;
-      font-weight: 600;
-      gap: 8px;
-      justify-content: flex-start;
-    }
-
-    .sync-btn.full-span {
-      grid-column: span 2;
-      justify-content: center;
-    }
-
-    .filter-chips {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      flex-shrink: 0;
-      padding-bottom: 2px;
-    }
-
-    .filter-chips::-webkit-scrollbar {
-      display: none;
-    }
-
-    .chip-btn {
-      padding: 6px 12px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      white-space: nowrap;
-      color: var(--text-secondary);
-    }
-
-    .chip-btn.active {
-      background: linear-gradient(145deg, var(--accent-1), var(--accent-2));
-      color: #fff;
-      border-color: rgba(255,255,255,0.45);
-    }
-
-    .library-list-card {
-      flex: 1;
-      border-radius: 26px;
-      padding: 10px;
-      overflow-y: auto;
-      min-height: 0;
-    }
-
-    .library-list-card::-webkit-scrollbar {
-      display: none;
-    }
-
-    .track-row {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      padding: 9px 10px;
-      border-radius: 18px;
-      transition: background 0.25s ease;
-      cursor: pointer;
-    }
-
-    .track-row:active {
-      background: rgba(255, 255, 255, 0.12);
-    }
-
-    .track-row.current {
-      background: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
-      border: 1px solid rgba(255,255,255,0.22);
-    }
-
-    .row-cover {
-      width: 46px;
-      height: 46px;
-      border-radius: 13px;
-      object-fit: cover;
-      background: rgba(255,255,255,0.08);
-      flex-shrink: 0;
-    }
-
-    .row-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .row-title {
-      font-size: 14px;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      margin-bottom: 3px;
-    }
-
-    .row-sub {
-      font-size: 12px;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .row-actions {
-      display: flex;
-      gap: 6px;
-      flex-shrink: 0;
-    }
-
-    .mini-action {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      font-size: 13px;
-    }
-
-    /* Settings Drawer inside Library */
-    .settings-box {
+    /* M3 Buttons */
+    .m3-btn {
+      height: 44px;
+      padding: 0 16px;
       border-radius: 22px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s ease, background-color var(--md-sys-motion-standard), color var(--md-sys-motion-standard);
+    }
+
+    .m3-btn:active {
+      transform: scale(0.97);
+    }
+
+    .m3-btn-tonal {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .m3-btn-filled {
+      background-color: var(--md-sys-color-primary);
+      color: var(--md-sys-color-on-primary);
+    }
+
+    .full-span {
+      grid-column: span 2;
+    }
+
+    /* Native iOS File Input Overlay inside M3 Button */
+    .file-picker-label {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .native-file-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+      font-size: 0;
+    }
+
+    /* Expandable M3 Card for Cloud Keys */
+    .m3-settings-card {
+      background-color: var(--md-sys-color-surface-container);
+      border-radius: var(--md-sys-shape-large);
       padding: 12px 14px;
       flex-shrink: 0;
+      transition: background-color var(--md-sys-motion-standard);
     }
 
     .settings-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--md-sys-color-on-surface);
       cursor: pointer;
     }
 
@@ -665,133 +567,268 @@
       display: none;
       flex-direction: column;
       gap: 8px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
 
     .settings-fields.open {
       display: flex;
     }
 
-    /* Bottom Liquid Dock */
-    .bottom-dock {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    /* M3 Filter Chips */
+    .m3-chips-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      padding: 2px 0;
+    }
+
+    .m3-chips-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .m3-filter-chip {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: var(--md-sys-shape-small);
+      border: 1px solid var(--md-sys-color-outline-variant);
+      background-color: transparent;
+      color: var(--md-sys-color-on-surface-variant);
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
       gap: 6px;
-      padding: 6px;
-      border-radius: 26px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .m3-filter-chip.active {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+      border-color: transparent;
+    }
+
+    /* M3 Track List Container */
+    .m3-list-card {
+      flex: 1;
+      background-color: var(--md-sys-color-surface-container-low);
+      border-radius: var(--md-sys-shape-extra-large);
+      padding: 8px;
+      overflow-y: auto;
+      min-height: 0;
+      transition: background-color var(--md-sys-motion-standard);
+    }
+
+    .m3-list-card::-webkit-scrollbar {
+      display: none;
+    }
+
+    .m3-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: var(--md-sys-shape-large);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .m3-list-item:active {
+      background-color: var(--md-sys-color-surface-container-highest);
+    }
+
+    .m3-list-item.current {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .item-cover {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--md-sys-shape-medium);
+      object-fit: cover;
+      background-color: var(--md-sys-color-surface-container-high);
       flex-shrink: 0;
     }
 
-    .dock-tab {
+    .item-texts {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-title {
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 20px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-subtitle {
+      font-size: 12px;
+      line-height: 16px;
+      color: var(--md-sys-color-on-surface-variant);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 2px;
+    }
+
+    .m3-list-item.current .item-subtitle {
+      color: var(--md-sys-color-on-secondary-container);
+      opacity: 0.85;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    /* =========================================================================
+       MATERIAL 3 NAVIGATION BAR (BOTTOM BAR)
+       ========================================================================= */
+    .m3-nav-bar {
+      background-color: var(--md-sys-color-surface-container);
+      padding-top: 10px;
+      padding-bottom: calc(var(--safe-bottom) + 6px);
+      padding-left: 12px;
+      padding-right: 12px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      flex-shrink: 0;
+      border-top: 1px solid var(--md-sys-color-outline-variant);
+      transition: background-color var(--md-sys-motion-standard);
+    }
+
+    .m3-nav-dest {
       border: none;
       background: transparent;
-      color: var(--text-secondary);
-      padding: 9px 6px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
+      color: var(--md-sys-color-on-surface-variant);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
+      padding: 2px 0;
       cursor: pointer;
-      transition: all 0.25s ease;
     }
 
-    .dock-tab.active {
-      background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
-      color: #ffffff;
-      box-shadow: inset 0 1px 1px rgba(255,255,255,0.45), 0 4px 12px rgba(0,0,0,0.25);
+    .m3-nav-pill {
+      width: 64px;
+      height: 32px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.25s ease, color 0.25s ease;
     }
 
-    /* Toast Notification */
-    .toast {
-      position: fixed;
-      top: calc(var(--safe-top) + 46px);
-      left: 50%;
-      transform: translateX(-50%) translateY(-16px);
-      z-index: 50;
-      padding: 9px 16px;
-      border-radius: 999px;
+    .m3-nav-dest.active .m3-nav-pill {
+      background-color: var(--md-sys-color-secondary-container);
+      color: var(--md-sys-color-on-secondary-container);
+    }
+
+    .m3-nav-label {
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+
+    .m3-nav-dest.active .m3-nav-label {
+      color: var(--md-sys-color-on-surface);
+      font-weight: 700;
+    }
+
+    /* Material 3 Snackbar */
+    .m3-snackbar {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 86px);
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      z-index: 50;
+      background-color: var(--md-sys-color-inverse-surface);
+      color: var(--md-sys-color-inverse-on-surface);
+      padding: 12px 18px;
+      border-radius: var(--md-sys-shape-small);
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.32);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.22s ease, transform 0.25s cubic-bezier(0.2, 0, 0, 1);
       max-width: 90vw;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .toast.show {
+    .m3-snackbar.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
 
     svg {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
       fill: currentColor;
     }
   </style>
 </head>
 <body>
 
-  <!-- Dynamic Liquid Ambient Canvas -->
-  <div class="liquid-canvas">
-    <div class="liquid-orb orb-1" id="orb1"></div>
-    <div class="liquid-orb orb-2" id="orb2"></div>
-    <div class="liquid-orb orb-3" id="orb3"></div>
-  </div>
-  <div class="noise-overlay"></div>
-
-  <!-- Toast -->
-  <div class="toast glass-panel" id="toast">Готово</div>
+  <!-- Material 3 Snackbar -->
+  <div class="m3-snackbar" id="toast">Готово</div>
 
   <div class="app-shell">
-    <!-- Top Header -->
-    <div class="top-bar">
-      <div class="brand-pill glass-panel">
-        <span class="status-dot" id="statusDot"></span>
-        <span>Liquid Glass</span>
+    <!-- Material 3 Top App Bar -->
+    <header class="m3-top-bar">
+      <div class="m3-app-title">
+        <span class="m3-color-swatch"></span>
+        <span>Material Music</span>
       </div>
-      <div class="source-badge glass-panel" id="activeSourceBadge">
-        <span>Локально</span>
+      <div class="m3-top-actions">
+        <div class="m3-assist-chip" id="activeSourceBadge">Локально</div>
+        <button class="m3-icon-btn" id="btnToggleTheme" title="Светлая / Тёмная тема Material 3">
+          <svg id="iconThemeLight" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 0 0-1.41 0 .996.996 0 0 0 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 0 0 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+          <svg id="iconThemeDark" viewBox="0 0 24 24" style="display:none;"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+        </button>
       </div>
-    </div>
+    </header>
 
     <!-- Main Views -->
-    <div class="views-container">
+    <main class="views-container">
 
       <!-- VIEW 1: PLAYER -->
       <section class="view-screen player-view active" id="view-player">
         <div class="artwork-stage">
-          <div class="artwork-frame glass-panel" id="artworkFrame">
-            <img id="coverImg" class="artwork-img" alt="Album Cover" />
-            <div class="artwork-sheen"></div>
+          <div class="m3-artwork-card" id="artworkFrame">
+            <img id="coverImg" class="artwork-img" alt="Обложка альбома" />
           </div>
         </div>
 
         <div>
-          <div class="meta-block">
+          <div class="meta-row">
             <div class="track-titles">
               <h1 class="track-title" id="trackTitle">Выберите трек</h1>
-              <p class="track-artist" id="trackArtist">Google Диск • Telegram • Файлы</p>
+              <p class="track-artist" id="trackArtist">MP3 с iPhone • Google Диск • Telegram</p>
             </div>
             <div class="meta-actions">
-              <button class="glass-btn icon-circle-btn" id="btnAutoMeta" title="Найти обложку и текст в сети">
+              <button class="m3-icon-btn tonal" id="btnAutoMeta" title="Найти обложку и текст">
                 <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
               </button>
-              <button class="glass-btn icon-circle-btn" id="btnCacheTrack" title="Сохранить в офлайн-кэш">
+              <button class="m3-icon-btn tonal" id="btnCacheTrack" title="Сохранить в офлайн-кэш">
                 <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
               </button>
             </div>
           </div>
 
-          <div class="controls-card glass-panel">
-            <div class="progress-wrap">
-              <input type="range" class="liquid-slider" id="seekSlider" min="0" max="1000" value="0" />
+          <div class="m3-controls-card">
+            <div class="m3-slider-wrap">
+              <input type="range" class="m3-slider" id="seekSlider" min="0" max="1000" value="0" />
               <div class="time-row">
                 <span id="timeCurrent">0:00</span>
                 <span id="timeTotal">0:00</span>
@@ -799,26 +836,26 @@
             </div>
 
             <div class="transport-row">
-              <button class="glass-btn transport-btn small" id="btnShuffle" title="Перемешать">
+              <button class="m3-icon-btn" id="btnShuffle" title="Перемешать">
                 <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
               </button>
-              <button class="glass-btn transport-btn" id="btnPrev" title="Назад">
+              <button class="m3-skip-btn" id="btnPrev" title="Предыдущий">
                 <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
               </button>
-              <button class="glass-btn play-orb-btn" id="btnPlayPause" title="Играть / Пауза">
-                <svg id="iconPlay" viewBox="0 0 24 24" style="width:30px;height:30px;"><path d="M8 5v14l11-7z"/></svg>
-                <svg id="iconPause" viewBox="0 0 24 24" style="width:30px;height:30px;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              <button class="m3-play-fab" id="btnPlayPause" title="Воспроизвести / Пауза">
+                <svg id="iconPlay" viewBox="0 0 24 24" style="width:32px;height:32px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="iconPause" viewBox="0 0 24 24" style="width:32px;height:32px;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
               </button>
-              <button class="glass-btn transport-btn" id="btnNext" title="Вперёд">
+              <button class="m3-skip-btn" id="btnNext" title="Следующий">
                 <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
               </button>
-              <button class="glass-btn transport-btn small" id="btnRepeat" title="Повтор">
+              <button class="m3-icon-btn" id="btnRepeat" title="Повтор">
                 <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
               </button>
             </div>
 
-            <div class="mini-lyric-preview" id="miniLyricPreview">
-              Нажмите, чтобы открыть караоке-текст песни
+            <div class="m3-lyric-banner" id="miniLyricPreview">
+              Нажмите, чтобы открыть текст песни
             </div>
           </div>
         </div>
@@ -826,13 +863,13 @@
 
       <!-- VIEW 2: LYRICS -->
       <section class="view-screen" id="view-lyrics">
-        <div class="lyrics-card glass-panel">
-          <div class="lyrics-search-bar">
-            <input type="text" class="glass-input" id="manualLyricQuery" placeholder="Исполнитель - Название трека..." />
-            <button class="glass-btn" id="btnManualLyricSearch" style="padding:0 14px;border-radius:14px;font-size:13px;font-weight:600;">Найти</button>
+        <div class="m3-lyrics-card">
+          <div class="lyrics-search-row">
+            <input type="text" class="m3-input" id="manualLyricQuery" placeholder="Исполнитель - Название трека..." />
+            <button class="m3-btn m3-btn-tonal" id="btnManualLyricSearch">Найти</button>
           </div>
           <div class="lyrics-scroll" id="lyricsContainer">
-            <div class="lyric-line plain">Текст песни появится автоматически при запуске трека.</div>
+            <div class="lyric-line plain">Текст песни загрузится автоматически при запуске трека.</div>
           </div>
         </div>
       </section>
@@ -840,63 +877,72 @@
       <!-- VIEW 3: LIBRARY & CLOUD SYNC -->
       <section class="view-screen library-view" id="view-library">
         <div class="sync-grid">
-          <button class="glass-btn sync-btn" id="btnSyncDrive">
-            <svg viewBox="0 0 24 24" style="color:#4ade80;"><path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5L7.71 3.5zm1.58 0l6.56 11.5h6.86L16.15 3.5H9.29zm5.42 12.5H4.15l-3.43 6h17.42l3.43-6H14.71z"/></svg>
+          <button class="m3-btn m3-btn-tonal" id="btnSyncDrive">
+            <svg viewBox="0 0 24 24"><path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5L7.71 3.5zm1.58 0l6.56 11.5h6.86L16.15 3.5H9.29zm5.42 12.5H4.15l-3.43 6h17.42l3.43-6H14.71z"/></svg>
             <span>Google Диск</span>
           </button>
-          <button class="glass-btn sync-btn" id="btnSyncTelegram">
-            <svg viewBox="0 0 24 24" style="color:#38bdf8;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.96-.75 3.78-1.65 6.31-2.74 7.58-3.27 3.61-1.51 4.35-1.77 4.84-1.78.11 0 .35.03.5.16.13.1.17.24.18.34.02.07.02.21 0 .33z"/></svg>
+          <button class="m3-btn m3-btn-tonal" id="btnSyncTelegram">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.96-.75 3.78-1.65 6.31-2.74 7.58-3.27 3.61-1.51 4.35-1.77 4.84-1.78.11 0 .35.03.5.16.13.1.17.24.18.34.02.07.02.21 0 .33z"/></svg>
             <span>Telegram</span>
           </button>
-          <button class="glass-btn sync-btn full-span" id="btnAddLocalFiles">
+
+          <!-- Direct Native Touch Label + Overlay Input for Reliable iOS MP3 Import -->
+          <label for="localFileInput" class="m3-btn m3-btn-filled full-span file-picker-label">
             <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            <span>Добавить аудиофайлы с iPhone</span>
-          </button>
-          <input type="file" id="localFileInput" accept="audio/*" multiple style="display:none;" />
+            <span>Добавить MP3 / аудио с iPhone</span>
+            <input type="file" id="localFileInput" class="native-file-overlay" multiple />
+          </label>
         </div>
 
-        <!-- Collapsible Cloud Keys Config -->
-        <div class="settings-box glass-panel">
+        <!-- Expandable Cloud Keys Card -->
+        <div class="m3-settings-card">
           <div class="settings-header" id="toggleSettings">
             <span>Ключи Google Диска и Telegram</span>
             <span id="settingsArrow">▼</span>
           </div>
           <div class="settings-fields" id="settingsFields">
-            <input type="text" class="glass-input" id="cfgGoogleKey" placeholder="Google API Key (AIzaSy...)" />
-            <input type="text" class="glass-input" id="cfgDriveFolder" placeholder="ID папки Google Диска" />
-            <input type="text" class="glass-input" id="cfgTgToken" placeholder="Telegram Bot Token (123456:ABC...)" />
-            <input type="text" class="glass-input" id="cfgTgChatId" placeholder="Telegram Chat ID (опционально)" />
-            <button class="glass-btn" id="btnSaveConfig" style="padding:10px;border-radius:14px;font-size:13px;font-weight:600;">Сохранить ключи</button>
+            <input type="text" class="m3-input" id="cfgGoogleKey" placeholder="Google API Key (AIzaSy...)" />
+            <input type="text" class="m3-input" id="cfgDriveFolder" placeholder="ID папки Google Диска" />
+            <input type="text" class="m3-input" id="cfgTgToken" placeholder="Telegram Bot Token (123456:ABC...)" />
+            <input type="text" class="m3-input" id="cfgTgChatId" placeholder="Telegram Chat ID (необязательно)" />
+            <button class="m3-btn m3-btn-filled" id="btnSaveConfig">Сохранить ключи</button>
           </div>
         </div>
 
-        <!-- Source Filter -->
-        <div class="filter-chips" id="filterChips">
-          <button class="glass-btn chip-btn active" data-filter="all">Все треки</button>
-          <button class="glass-btn chip-btn" data-filter="gdrive">Google Диск</button>
-          <button class="glass-btn chip-btn" data-filter="telegram">Telegram</button>
-          <button class="glass-btn chip-btn" data-filter="cached">Офлайн-кэш</button>
+        <!-- Material 3 Filter Chips -->
+        <div class="m3-chips-row" id="filterChips">
+          <button class="m3-filter-chip active" data-filter="all">Все треки</button>
+          <button class="m3-filter-chip" data-filter="local">iPhone MP3</button>
+          <button class="m3-filter-chip" data-filter="gdrive">Google Диск</button>
+          <button class="m3-filter-chip" data-filter="telegram">Telegram</button>
+          <button class="m3-filter-chip" data-filter="cached">Офлайн</button>
         </div>
 
         <!-- Track List -->
-        <div class="library-list-card glass-panel" id="trackListContainer"></div>
+        <div class="m3-list-card" id="trackListContainer"></div>
       </section>
 
-    </div>
+    </main>
 
-    <!-- Bottom Glass Dock -->
-    <nav class="bottom-dock glass-panel">
-      <button class="dock-tab active" data-tab="player">
-        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-        <span>Плеер</span>
+    <!-- Material 3 Navigation Bar -->
+    <nav class="m3-nav-bar">
+      <button class="m3-nav-dest active" data-tab="player">
+        <div class="m3-nav-pill">
+          <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <span class="m3-nav-label">Плеер</span>
       </button>
-      <button class="dock-tab" data-tab="lyrics">
-        <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
-        <span>Текст</span>
+      <button class="m3-nav-dest" data-tab="lyrics">
+        <div class="m3-nav-pill">
+          <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
+        </div>
+        <span class="m3-nav-label">Текст</span>
       </button>
-      <button class="dock-tab" data-tab="library">
-        <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/></svg>
-        <span>Облако и треки</span>
+      <button class="m3-nav-dest" data-tab="library">
+        <div class="m3-nav-pill">
+          <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/></svg>
+        </div>
+        <span class="m3-nav-label">Медиатека</span>
       </button>
     </nav>
   </div>
@@ -913,24 +959,20 @@
     };
 
     // =========================================================================
-    // STATE & INDEXEDDB OFFLINE STORAGE
+    // INDEXEDDB + IN-MEMORY SESSION STORAGE FOR iOS MP3 RELIABILITY
     // =========================================================================
-    const DB_NAME = "LiquidGlassMusicDB";
-    const DB_VERSION = 1;
+    const DB_NAME = "Material3MusicDB";
+    const DB_VERSION = 2;
     let db = null;
+
+    // Keeps immediate Blobs in RAM so MP3 playback never fails even if IndexedDB is busy/full
+    const sessionAudioBlobs = new Map();
 
     const DEFAULT_COVER_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-        <defs>
-          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#6e56cf"/>
-            <stop offset="50%" stop-color="#0091ff"/>
-            <stop offset="100%" stop-color="#e5484d"/>
-          </linearGradient>
-        </defs>
-        <rect width="400" height="400" fill="url(#g)"/>
-        <circle cx="200" cy="200" r="95" fill="rgba(255,255,255,0.18)"/>
-        <circle cx="200" cy="200" r="28" fill="rgba(255,255,255,0.85)"/>
+        <rect width="400" height="400" fill="#2b2930"/>
+        <circle cx="200" cy="200" r="110" fill="#4f378b"/>
+        <path d="M180 145v78.2c-5.9-3.4-12.7-5.5-20-5.5-22.1 0-40 17.9-40 40s17.9 40 40 40 40-17.9 40-40V185h40v-40h-60z" fill="#eaddff"/>
       </svg>
     `);
 
@@ -941,7 +983,10 @@
       shuffle: false,
       repeat: false,
       filter: "all",
-      parsedLyrics: [], // [{time: seconds, text: string}]
+      themeMode: "dark", // "dark" | "light"
+      currentSeedHue: 265,
+      currentSeedSat: 65,
+      parsedLyrics: [],
       plainLyrics: "",
       activeLyricIdx: -1,
       config: { ...APP_CONFIG }
@@ -956,75 +1001,134 @@
       t.textContent = msg;
       t.classList.add("show");
       clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
+      window.__toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
     }
 
     function openDatabase() {
-      return new Promise((resolve, reject) => {
-        const req = indexedDB.open(DB_NAME, DB_VERSION);
-        req.onupgradeneeded = (e) => {
-          const database = e.target.result;
-          if (!database.objectStoreNames.contains("tracks")) {
-            database.createObjectStore("tracks", { keyPath: "id" });
-          }
-          if (!database.objectStoreNames.contains("blobs")) {
-            database.createObjectStore("blobs", { keyPath: "id" });
-          }
-        };
-        req.onsuccess = (e) => {
-          db = e.target.result;
-          resolve(db);
-        };
-        req.onerror = (e) => reject(e.target.error);
+      return new Promise((resolve) => {
+        try {
+          const req = indexedDB.open(DB_NAME, DB_VERSION);
+          req.onupgradeneeded = (e) => {
+            const database = e.target.result;
+            if (!database.objectStoreNames.contains("tracks")) {
+              database.createObjectStore("tracks", { keyPath: "id" });
+            }
+            if (!database.objectStoreNames.contains("blobs")) {
+              database.createObjectStore("blobs", { keyPath: "id" });
+            }
+          };
+          req.onsuccess = (e) => {
+            db = e.target.result;
+            resolve(db);
+          };
+          req.onerror = () => resolve(null);
+        } catch (err) {
+          resolve(null);
+        }
       });
     }
 
     function dbPut(storeName, value) {
-      return new Promise((resolve, reject) => {
-        if (!db) return resolve();
-        const tx = db.transaction(storeName, "readwrite");
-        tx.objectStore(storeName).put(value);
-        tx.oncomplete = () => resolve();
-        tx.onerror = (e) => reject(e.target.error);
+      return new Promise((resolve) => {
+        if (!db) return resolve(false);
+        try {
+          const tx = db.transaction(storeName, "readwrite");
+          tx.objectStore(storeName).put(value);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        } catch (e) {
+          resolve(false);
+        }
       });
     }
 
     function dbGet(storeName, key) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         if (!db) return resolve(null);
-        const tx = db.transaction(storeName, "readonly");
-        const req = tx.objectStore(storeName).get(key);
-        req.onsuccess = () => resolve(req.result || null);
-        req.onerror = (e) => reject(e.target.error);
+        try {
+          const tx = db.transaction(storeName, "readonly");
+          const req = tx.objectStore(storeName).get(key);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        } catch (e) {
+          resolve(null);
+        }
       });
     }
 
     function dbGetAll(storeName) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         if (!db) return resolve([]);
-        const tx = db.transaction(storeName, "readonly");
-        const req = tx.objectStore(storeName).getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = (e) => reject(e.target.error);
+        try {
+          const tx = db.transaction(storeName, "readonly");
+          const req = tx.objectStore(storeName).getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        } catch (e) {
+          resolve([]);
+        }
       });
     }
 
     function dbDelete(storeName, key) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         if (!db) return resolve();
-        const tx = db.transaction(storeName, "readwrite");
-        tx.objectStore(storeName).delete(key);
-        tx.oncomplete = () => resolve();
-        tx.onerror = (e) => reject(e.target.error);
+        try {
+          const tx = db.transaction(storeName, "readwrite");
+          tx.objectStore(storeName).delete(key);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => resolve();
+        } catch (e) {
+          resolve();
+        }
       });
     }
 
     // =========================================================================
-    // CONFIG PERSISTENCE
+    // AUDIO FORMAT & MIME TYPE HELPERS FOR iOS MP3
+    // =========================================================================
+    const AUDIO_EXTENSIONS = [".mp3", ".m4a", ".wav", ".aac", ".flac", ".ogg", ".opus", ".webm", ".mp4", ".caf", ".aiff"];
+
+    function isSupportedAudioFile(file) {
+      if (!file) return false;
+      const nameLower = (file.name || "").toLowerCase();
+      if (AUDIO_EXTENSIONS.some(ext => nameLower.endsWith(ext))) return true;
+      if (file.type && (file.type.startsWith("audio/") || file.type === "application/ogg")) return true;
+      // On iOS, MP3 files from Files/Telegram sometimes arrive with empty file.type
+      if (!file.type && nameLower.includes(".")) return true;
+      return false;
+    }
+
+    function inferAudioMimeType(file) {
+      if (file.type && file.type.startsWith("audio/")) return file.type;
+      const name = (file.name || "").toLowerCase();
+      if (name.endsWith(".mp3")) return "audio/mpeg";
+      if (name.endsWith(".m4a") || name.endsWith(".mp4")) return "audio/mp4";
+      if (name.endsWith(".wav")) return "audio/wav";
+      if (name.endsWith(".aac")) return "audio/aac";
+      if (name.endsWith(".flac")) return "audio/flac";
+      if (name.endsWith(".ogg") || name.endsWith(".opus")) return "audio/ogg";
+      return "audio/mpeg";
+    }
+
+    function readFileAsArrayBuffer(file) {
+      if (typeof file.arrayBuffer === "function") {
+        return file.arrayBuffer();
+      }
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    // =========================================================================
+    // CONFIG & THEME PERSISTENCE
     // =========================================================================
     function loadSavedConfig() {
       try {
-        const raw = localStorage.getItem("lg_player_config");
+        const raw = localStorage.getItem("m3_player_config");
         if (raw) {
           const parsed = JSON.parse(raw);
           state.config = {
@@ -1034,11 +1138,16 @@
             TELEGRAM_CHAT_ID: parsed.TELEGRAM_CHAT_ID || APP_CONFIG.TELEGRAM_CHAT_ID
           };
         }
+        const savedTheme = localStorage.getItem("m3_theme_mode");
+        if (savedTheme === "light" || savedTheme === "dark") {
+          state.themeMode = savedTheme;
+        }
       } catch (e) {}
       document.getElementById("cfgGoogleKey").value = state.config.GOOGLE_API_KEY;
       document.getElementById("cfgDriveFolder").value = state.config.GOOGLE_DRIVE_FOLDER_ID;
       document.getElementById("cfgTgToken").value = state.config.TELEGRAM_BOT_TOKEN;
       document.getElementById("cfgTgChatId").value = state.config.TELEGRAM_CHAT_ID;
+      updateThemeToggleIcons();
     }
 
     function saveConfigFromInputs() {
@@ -1048,14 +1157,94 @@
         TELEGRAM_BOT_TOKEN: document.getElementById("cfgTgToken").value.trim(),
         TELEGRAM_CHAT_ID: document.getElementById("cfgTgChatId").value.trim()
       };
-      localStorage.setItem("lg_player_config", JSON.stringify(state.config));
-      showToast("Настройки сохранены");
+      localStorage.setItem("m3_player_config", JSON.stringify(state.config));
+      showToast("Ключи сохранены");
+    }
+
+    function updateThemeToggleIcons() {
+      const isDark = state.themeMode === "dark";
+      document.getElementById("iconThemeLight").style.display = isDark ? "block" : "none";
+      document.getElementById("iconThemeDark").style.display = isDark ? "none" : "block";
     }
 
     // =========================================================================
-    // ADAPTIVE COLOR EXTRACTION FROM ALBUM COVER
+    // MATERIAL 3 DYNAMIC COLOR (MONET TONAL PALETTE FROM COVER ART)
     // =========================================================================
-    function extractColorsFromImage(imgElement) {
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h = 0, s = 0, l = (max + min) / 2;
+      if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
+    function applyMaterial3TonalPalette(hue, sat) {
+      state.currentSeedHue = hue;
+      state.currentSeedSat = sat;
+      const c = Math.max(28, Math.min(82, sat)); // Balanced Material 3 chroma
+      const neutralSat = Math.min(14, Math.round(c * 0.2));
+      const root = document.documentElement.style;
+      const isDark = state.themeMode === "dark";
+
+      if (isDark) {
+        root.setProperty("--md-sys-color-primary", `hsl(${hue}, ${c}%, 80%)`);
+        root.setProperty("--md-sys-color-on-primary", `hsl(${hue}, ${c}%, 20%)`);
+        root.setProperty("--md-sys-color-primary-container", `hsl(${hue}, ${Math.round(c * 0.85)}%, 30%)`);
+        root.setProperty("--md-sys-color-on-primary-container", `hsl(${hue}, ${c}%, 90%)`);
+
+        root.setProperty("--md-sys-color-secondary-container", `hsl(${hue}, ${Math.round(c * 0.35)}%, 28%)`);
+        root.setProperty("--md-sys-color-on-secondary-container", `hsl(${hue}, ${Math.round(c * 0.45)}%, 90%)`);
+
+        root.setProperty("--md-sys-color-surface", `hsl(${hue}, ${neutralSat}%, 8%)`);
+        root.setProperty("--md-sys-color-surface-container-lowest", `hsl(${hue}, ${neutralSat}%, 5%)`);
+        root.setProperty("--md-sys-color-surface-container-low", `hsl(${hue}, ${neutralSat}%, 11%)`);
+        root.setProperty("--md-sys-color-surface-container", `hsl(${hue}, ${neutralSat}%, 13%)`);
+        root.setProperty("--md-sys-color-surface-container-high", `hsl(${hue}, ${neutralSat}%, 17%)`);
+        root.setProperty("--md-sys-color-surface-container-highest", `hsl(${hue}, ${neutralSat}%, 22%)`);
+
+        root.setProperty("--md-sys-color-on-surface", `hsl(${hue}, 12%, 91%)`);
+        root.setProperty("--md-sys-color-on-surface-variant", `hsl(${hue}, 10%, 78%)`);
+        root.setProperty("--md-sys-color-outline", `hsl(${hue}, 8%, 58%)`);
+        root.setProperty("--md-sys-color-outline-variant", `hsl(${hue}, 10%, 28%)`);
+        root.setProperty("--md-sys-color-inverse-surface", `hsl(${hue}, 12%, 91%)`);
+        root.setProperty("--md-sys-color-inverse-on-surface", `hsl(${hue}, 10%, 19%)`);
+        document.getElementById("metaThemeColor").setAttribute("content", "#141218");
+      } else {
+        root.setProperty("--md-sys-color-primary", `hsl(${hue}, ${c}%, 40%)`);
+        root.setProperty("--md-sys-color-on-primary", `#ffffff`);
+        root.setProperty("--md-sys-color-primary-container", `hsl(${hue}, ${c}%, 90%)`);
+        root.setProperty("--md-sys-color-on-primary-container", `hsl(${hue}, ${c}%, 12%)`);
+
+        root.setProperty("--md-sys-color-secondary-container", `hsl(${hue}, ${Math.round(c * 0.35)}%, 88%)`);
+        root.setProperty("--md-sys-color-on-secondary-container", `hsl(${hue}, ${Math.round(c * 0.45)}%, 16%)`);
+
+        root.setProperty("--md-sys-color-surface", `hsl(${hue}, ${neutralSat}%, 98%)`);
+        root.setProperty("--md-sys-color-surface-container-lowest", `#ffffff`);
+        root.setProperty("--md-sys-color-surface-container-low", `hsl(${hue}, ${neutralSat}%, 95%)`);
+        root.setProperty("--md-sys-color-surface-container", `hsl(${hue}, ${neutralSat}%, 93%)`);
+        root.setProperty("--md-sys-color-surface-container-high", `hsl(${hue}, ${neutralSat}%, 90%)`);
+        root.setProperty("--md-sys-color-surface-container-highest", `hsl(${hue}, ${neutralSat}%, 87%)`);
+
+        root.setProperty("--md-sys-color-on-surface", `hsl(${hue}, 12%, 11%)`);
+        root.setProperty("--md-sys-color-on-surface-variant", `hsl(${hue}, 10%, 30%)`);
+        root.setProperty("--md-sys-color-outline", `hsl(${hue}, 8%, 48%)`);
+        root.setProperty("--md-sys-color-outline-variant", `hsl(${hue}, 10%, 80%)`);
+        root.setProperty("--md-sys-color-inverse-surface", `hsl(${hue}, 10%, 19%)`);
+        root.setProperty("--md-sys-color-inverse-on-surface", `hsl(${hue}, 12%, 95%)`);
+        document.getElementById("metaThemeColor").setAttribute("content", "#fef7ff");
+      }
+    }
+
+    function extractSeedFromCover(imgElement, fallbackText) {
       try {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -1065,94 +1254,44 @@
         ctx.drawImage(imgElement, 0, 0, size, size);
         const data = ctx.getImageData(0, 0, size, size).data;
 
-        const buckets = {};
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i + 1];
-          const b = data[i + 2];
-          const a = data[i + 3];
+        let bestScore = -1;
+        let bestHsl = { h: 265, s: 65 };
+
+        for (let i = 0; i < data.length; i += 16) {
+          const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
           if (a < 180) continue;
-
-          const max = Math.max(r, g, b);
-          const min = Math.min(r, g, b);
-          const lum = (max + min) / 2;
-          const sat = max === min ? 0 : (max - min) / (1 - Math.abs(2 * (lum / 255) - 1) || 1);
-
-          // Skip near-black and near-white pixels for richer glass tint
-          if (lum < 28 || lum > 232) continue;
-
-          const qr = Math.round(r / 32) * 32;
-          const qg = Math.round(g / 32) * 32;
-          const qb = Math.round(b / 32) * 32;
-          const key = `${qr},${qg},${qb}`;
-          const weight = 1 + (sat / 255) * 3.5;
-          if (!buckets[key]) buckets[key] = { r: 0, g: 0, b: 0, weight: 0 };
-          buckets[key].r += r * weight;
-          buckets[key].g += g * weight;
-          buckets[key].b += b * weight;
-          buckets[key].weight += weight;
+          const hsl = rgbToHsl(r, g, b);
+          if (hsl.l < 18 || hsl.l > 85) continue;
+          const score = hsl.s * (1 - Math.abs(hsl.l - 50) / 60);
+          if (score > bestScore) {
+            bestScore = score;
+            bestHsl = hsl;
+          }
         }
 
-        const sorted = Object.values(buckets)
-          .map(b => ({
-            r: Math.min(255, Math.round(b.r / b.weight)),
-            g: Math.min(255, Math.round(b.g / b.weight)),
-            b: Math.min(255, Math.round(b.b / b.weight)),
-            weight: b.weight
-          }))
-          .sort((a, b) => b.weight - a.weight);
-
-        if (sorted.length >= 1) {
-          const c1 = sorted[0];
-          const c2 = sorted[1] || { r: Math.min(255, c1.r + 45), g: Math.max(0, c1.g - 30), b: Math.min(255, c1.b + 55) };
-          const c3 = sorted[2] || { r: Math.max(0, c1.r - 40), g: Math.min(255, c1.g + 45), b: Math.max(0, c1.b - 25) };
-
-          applyThemePalette(
-            `rgb(${c1.r}, ${c1.g}, ${c1.b})`,
-            `rgb(${c2.r}, ${c2.g}, ${c2.b})`,
-            `rgb(${c3.r}, ${c3.g}, ${c3.b})`,
-            `rgba(${c1.r}, ${c1.g}, ${c1.b}, 0.55)`
-          );
+        if (bestScore > 8) {
+          applyMaterial3TonalPalette(bestHsl.h, bestHsl.s);
           return;
         }
-      } catch (err) {
-        // Fallback if CORS blocks canvas read
-      }
-      applyFallbackHashPalette(document.getElementById("trackTitle").textContent);
-    }
+      } catch (e) {}
 
-    function applyFallbackHashPalette(seedText) {
+      // Deterministic seed hue from track title
       let hash = 0;
-      for (let i = 0; i < seedText.length; i++) {
-        hash = seedText.charCodeAt(i) + ((hash << 5) - hash);
+      const seed = fallbackText || "MaterialMusic";
+      for (let i = 0; i < seed.length; i++) {
+        hash = seed.charCodeAt(i) + ((hash << 5) - hash);
       }
-      const h1 = Math.abs(hash) % 360;
-      const h2 = (h1 + 52) % 360;
-      const h3 = (h1 + 145) % 360;
-      applyThemePalette(
-        `hsl(${h1}, 78%, 54%)`,
-        `hsl(${h2}, 82%, 48%)`,
-        `hsl(${h3}, 74%, 46%)`,
-        `hsla(${h1}, 80%, 55%, 0.52)`
-      );
-    }
-
-    function applyThemePalette(c1, c2, c3, glow) {
-      const root = document.documentElement.style;
-      root.setProperty("--accent-1", c1);
-      root.setProperty("--accent-2", c2);
-      root.setProperty("--accent-3", c3);
-      root.setProperty("--accent-glow", glow);
+      applyMaterial3TonalPalette(Math.abs(hash) % 360, 62);
     }
 
     function setCoverArtwork(url, fallbackSeed) {
       const img = document.getElementById("coverImg");
       img.crossOrigin = "anonymous";
-      img.onload = () => extractColorsFromImage(img);
+      img.onload = () => extractSeedFromCover(img, fallbackSeed);
       img.onerror = () => {
         img.onerror = null;
         img.src = DEFAULT_COVER_SVG;
-        applyFallbackHashPalette(fallbackSeed || "LiquidGlass");
+        extractSeedFromCover(img, fallbackSeed);
       };
       img.src = url || DEFAULT_COVER_SVG;
     }
@@ -1165,7 +1304,7 @@
         .replace(/\.[^/.]+$/, "")
         .replace(/[_]+/g, " ")
         .replace(/\(.*?\)|\[.*?\]/g, "")
-        .replace(/\b(official|video|audio|lyrics|hd|hq|320kbps|mp3|flac|remastered)\b/gi, "")
+        .replace(/(official|video|audio|lyrics|hd|hq|320kbps|mp3|flac|remastered)/gi, "")
         .replace(/\s+/g, " ")
         .trim();
     }
@@ -1184,8 +1323,6 @@
       if (!searchStr) return;
 
       showToast("Поиск обложки и текста...");
-
-      // 1. Search Cover via iTunes Search API
       let resolvedArtist = track.artist;
       let resolvedTitle = track.title;
 
@@ -1196,10 +1333,7 @@
           const data = await res.json();
           if (data.results && data.results.length > 0) {
             const hit = data.results[0];
-            const hdCover = hit.artworkUrl100
-              ? hit.artworkUrl100.replace("100x100bb", "600x600bb")
-              : null;
-
+            const hdCover = hit.artworkUrl100 ? hit.artworkUrl100.replace("100x100bb", "600x600bb") : null;
             if (hdCover) {
               track.coverUrl = hdCover;
               if (!track.artist && hit.artistName) {
@@ -1219,19 +1353,14 @@
             }
           }
         }
-      } catch (e) {
-        console.warn("Cover search error:", e);
-      }
+      } catch (e) {}
 
-      // 2. Search Synced Lyrics via LRCLIB
       try {
         let lyricData = null;
         if (resolvedArtist && resolvedTitle && !customQuery) {
           const exactUrl = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(resolvedArtist)}&track_name=${encodeURIComponent(resolvedTitle)}`;
           const exactRes = await fetch(exactUrl);
-          if (exactRes.ok) {
-            lyricData = await exactRes.json();
-          }
+          if (exactRes.ok) lyricData = await exactRes.json();
         }
 
         if (!lyricData || (!lyricData.syncedLyrics && !lyricData.plainLyrics)) {
@@ -1254,17 +1383,17 @@
           }
           showToast("Обложка и текст обновлены");
         } else {
-          showToast("Текст не найден в базе");
+          showToast("Текст песни не найден");
         }
       } catch (e) {
-        console.warn("Lyrics search error:", e);
         showToast("Ошибка поиска текста");
       }
     }
 
     function parseLRC(lrcText) {
       if (!lrcText) return [];
-      const lines = lrcText.split("\n");
+      const lines = lrcText.split("
+");
       const result = [];
       const regex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\](.*)/;
       for (const line of lines) {
@@ -1274,9 +1403,7 @@
           const sec = parseInt(m[2], 10);
           const ms = m[3] ? parseInt(m[3].padEnd(3, "0"), 10) / 1000 : 0;
           const text = m[4].trim();
-          if (text) {
-            result.push({ time: min * 60 + sec + ms, text });
-          }
+          if (text) result.push({ time: min * 60 + sec + ms, text });
         }
       }
       return result.sort((a, b) => a.time - b.time);
@@ -1296,13 +1423,14 @@
         preview.textContent = state.parsedLyrics[0].text;
       } else if (state.plainLyrics) {
         container.innerHTML = state.plainLyrics
-          .split("\n")
+          .split("
+")
           .filter(Boolean)
           .map(line => `<div class="lyric-line plain">${escapeHtml(line)}</div>`)
           .join("");
         preview.textContent = "Открыть полный текст песни";
       } else {
-        container.innerHTML = `<div class="lyric-line plain">Текст для этого трека пока не найден. Попробуйте ввести название вручную выше.</div>`;
+        container.innerHTML = `<div class="lyric-line plain">Текст не найден. Введите «Исполнитель - Название» в поле поиска выше.</div>`;
         preview.textContent = "Текст не найден — нажмите для поиска";
       }
     }
@@ -1322,15 +1450,13 @@
         const container = document.getElementById("lyricsContainer");
         const nodes = container.querySelectorAll(".lyric-line");
         nodes.forEach((n, i) => n.classList.toggle("active", i === idx));
-        if (nodes[idx]) {
-          nodes[idx].scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+        if (nodes[idx]) nodes[idx].scrollIntoView({ behavior: "smooth", block: "center" });
         document.getElementById("miniLyricPreview").textContent = state.parsedLyrics[idx].text;
       }
     }
 
     // =========================================================================
-    // GOOGLE DRIVE SYNC
+    // GOOGLE DRIVE & TELEGRAM SYNC
     // =========================================================================
     async function syncGoogleDrive() {
       const apiKey = state.config.GOOGLE_API_KEY;
@@ -1347,25 +1473,21 @@
         const url = `https://www.googleapis.com/drive/v3/files?q=${q}&key=${encodeURIComponent(apiKey)}&fields=files(id,name,size,mimeType)&pageSize=100`;
         const res = await fetch(url);
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error?.message || "Ошибка Google Drive API");
-        }
+        if (!res.ok) throw new Error(data.error?.message || "Ошибка Google Drive API");
 
         const files = data.files || [];
         let added = 0;
         for (const file of files) {
           const trackId = `gdrive_${file.id}`;
-          const exists = state.tracks.find(t => t.id === trackId);
-          if (!exists) {
+          if (!state.tracks.some(t => t.id === trackId)) {
             const parsed = splitArtistAndTitle(file.name);
-            const streamUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${encodeURIComponent(apiKey)}`;
             const newTrack = {
               id: trackId,
               title: parsed.title || file.name,
               artist: parsed.artist || "",
               source: "gdrive",
-              streamUrl,
+              streamUrl: `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${encodeURIComponent(apiKey)}`,
+              mimeType: file.mimeType || "audio/mpeg",
               coverUrl: "",
               syncedLyrics: "",
               plainLyrics: "",
@@ -1380,14 +1502,10 @@
         renderLibrary();
         showToast(`Google Диск: найдено ${files.length}, новых ${added}`);
       } catch (err) {
-        console.error(err);
         showToast(`Ошибка Диска: ${err.message}`);
       }
     }
 
-    // =========================================================================
-    // TELEGRAM BOT SYNC
-    // =========================================================================
     async function syncTelegram() {
       const token = state.config.TELEGRAM_BOT_TOKEN;
       const targetChat = state.config.TELEGRAM_CHAT_ID;
@@ -1402,40 +1520,33 @@
         const updatesUrl = `https://api.telegram.org/bot${token}/getUpdates?limit=100&allowed_updates=${encodeURIComponent(JSON.stringify(["message", "channel_post"]))}`;
         const res = await fetch(updatesUrl);
         const data = await res.json();
+        if (!data.ok) throw new Error(data.description || "Ошибка Telegram API");
 
-        if (!data.ok) {
-          throw new Error(data.description || "Ошибка Telegram API");
-        }
-
-        const updates = data.result || [];
         let added = 0;
-
-        for (const upd of updates) {
+        for (const upd of (data.result || [])) {
           const msg = upd.message || upd.channel_post;
           if (!msg) continue;
           if (targetChat && String(msg.chat?.id) !== String(targetChat)) continue;
 
-          const audioObj = msg.audio || (msg.document && msg.document.mime_type?.startsWith("audio/") ? msg.document : null);
+          const audioObj = msg.audio || (msg.document && (msg.document.mime_type?.startsWith("audio/") || (msg.document.file_name || "").toLowerCase().endsWith(".mp3")) ? msg.document : null);
           if (!audioObj) continue;
 
           const trackId = `tg_${audioObj.file_unique_id || audioObj.file_id}`;
           if (state.tracks.some(t => t.id === trackId)) continue;
 
-          // Resolve file_path via getFile
           const fileInfoRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${encodeURIComponent(audioObj.file_id)}`);
           const fileInfo = await fileInfoRes.json();
           if (!fileInfo.ok || !fileInfo.result?.file_path) continue;
 
-          const streamUrl = `https://api.telegram.org/file/bot${token}/${fileInfo.result.file_path}`;
           const rawName = audioObj.title || audioObj.file_name || "Telegram Audio";
           const parsed = splitArtistAndTitle(rawName);
-
           const newTrack = {
             id: trackId,
             title: audioObj.title || parsed.title,
             artist: audioObj.performer || parsed.artist || "",
             source: "telegram",
-            streamUrl,
+            streamUrl: `https://api.telegram.org/file/bot${token}/${fileInfo.result.file_path}`,
+            mimeType: audioObj.mime_type || "audio/mpeg",
             coverUrl: "",
             syncedLyrics: "",
             plainLyrics: "",
@@ -1446,78 +1557,113 @@
           await dbPut("tracks", newTrack);
           added++;
         }
-
         renderLibrary();
         showToast(`Telegram: добавлено ${added} треков`);
       } catch (err) {
-        console.error(err);
         showToast(`Ошибка Telegram: ${err.message}`);
       }
     }
 
     // =========================================================================
-    // LOCAL FILES & OFFLINE CACHING
+    // FIXED iOS MP3 / LOCAL AUDIO IMPORT (ArrayBuffer + Session Map + Explicit MIME)
     // =========================================================================
     async function handleLocalFiles(fileList) {
-      if (!fileList || !fileList.length) return;
-      let count = 0;
-      for (const file of fileList) {
-        const id = `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
-        const parsed = splitArtistAndTitle(file.name);
-        const track = {
-          id,
-          title: parsed.title || file.name,
-          artist: parsed.artist || "",
-          source: "local",
-          streamUrl: "",
-          coverUrl: "",
-          syncedLyrics: "",
-          plainLyrics: "",
-          cached: true,
-          addedAt: Date.now()
-        };
-        await dbPut("blobs", { id, blob: file });
-        await dbPut("tracks", track);
-        state.tracks.unshift(track);
-        count++;
+      if (!fileList || fileList.length === 0) {
+        showToast("Файлы не выбраны");
+        return;
       }
+
+      showToast("Импорт MP3 файлов...");
+      let importedCount = 0;
+      let firstNewIndex = -1;
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i];
+        if (!isSupportedAudioFile(file)) continue;
+
+        try {
+          const id = `local_${Date.now()}_${i}_${Math.random().toString(36).slice(2, 6)}`;
+          const mimeType = inferAudioMimeType(file);
+          const buffer = await readFileAsArrayBuffer(file);
+          const playableBlob = new Blob([buffer], { type: mimeType });
+
+          // Store immediately in RAM map so playback works 100% of the time
+          sessionAudioBlobs.set(id, playableBlob);
+
+          // Also persist ArrayBuffer (not raw File!) in IndexedDB for offline reload
+          const savedToDb = await dbPut("blobs", { id, buffer, mimeType });
+
+          const parsed = splitArtistAndTitle(file.name);
+          const track = {
+            id,
+            title: parsed.title || file.name.replace(/\.[^/.]+$/, ""),
+            artist: parsed.artist || "",
+            source: "local",
+            streamUrl: "",
+            mimeType,
+            coverUrl: "",
+            syncedLyrics: "",
+            plainLyrics: "",
+            cached: Boolean(savedToDb),
+            addedAt: Date.now() + i
+          };
+
+          await dbPut("tracks", track);
+          state.tracks.unshift(track);
+          if (firstNewIndex === -1) firstNewIndex = 0;
+          importedCount++;
+        } catch (err) {
+          console.error("Failed to import MP3:", file.name, err);
+        }
+      }
+
+      if (importedCount === 0) {
+        showToast("Не удалось прочитать выбранные MP3");
+        return;
+      }
+
       renderLibrary();
-      showToast(`Добавлено ${count} треков`);
-      if (state.currentIndex === -1 && state.tracks.length > 0) {
-        playTrackAtIndex(0, false);
+      showToast(`Добавлено MP3: ${importedCount}`);
+
+      // Immediately load and play the newly added MP3
+      if (firstNewIndex !== -1) {
+        await playTrackAtIndex(0, true);
+        switchTab("player");
       }
     }
 
     async function cacheCurrentOrTrack(track) {
       if (!track) return;
-      if (track.cached) {
-        showToast("Трек уже в офлайн-кэше");
+      if (track.cached || sessionAudioBlobs.has(track.id)) {
+        showToast("Трек уже сохранён офлайн");
         return;
       }
       if (!track.streamUrl) return;
-      showToast("Скачивание в офлайн-кэш...");
+      showToast("Сохранение в офлайн-кэш...");
       try {
         const res = await fetch(track.streamUrl);
-        if (!res.ok) throw new Error("Не удалось скачать файл");
-        const blob = await res.blob();
-        await dbPut("blobs", { id: track.id, blob });
+        if (!res.ok) throw new Error("Ошибка сети");
+        const buffer = await res.arrayBuffer();
+        const mimeType = track.mimeType || "audio/mpeg";
+        sessionAudioBlobs.set(track.id, new Blob([buffer], { type: mimeType }));
+        await dbPut("blobs", { id: track.id, buffer, mimeType });
         track.cached = true;
         await dbPut("tracks", track);
         updateCacheIcon(true);
         renderLibrary();
-        showToast("Сохранено для офлайн-прослушивания");
+        showToast("Трек сохранён для офлайна");
       } catch (e) {
-        showToast("Ошибка кэширования (проверьте сеть)");
+        showToast("Не удалось кэшировать трек");
       }
     }
 
     function updateCacheIcon(isCached) {
       const btn = document.getElementById("btnCacheTrack");
-      btn.classList.toggle("active-state", Boolean(isCached));
+      btn.classList.toggle("selected", Boolean(isCached));
     }
 
     // =========================================================================
-    // PLAYBACK ENGINE & MEDIA SESSION
+    // PLAYBACK ENGINE (iOS WebKit Safe) & MEDIA SESSION
     // =========================================================================
     async function playTrackAtIndex(index, autoplay = true) {
       if (index < 0 || index >= state.tracks.length) return;
@@ -1531,31 +1677,42 @@
       const badgeMap = {
         gdrive: "Google Диск",
         telegram: "Telegram",
-        local: "iPhone / Офлайн"
+        local: "iPhone • MP3"
       };
-      document.getElementById("activeSourceBadge").innerHTML = `<span>${badgeMap[track.source] || "Локально"}</span>`;
-      updateCacheIcon(track.cached);
+      document.getElementById("activeSourceBadge").textContent = badgeMap[track.source] || "Локально";
+      updateCacheIcon(track.cached || sessionAudioBlobs.has(track.id));
 
-      // Cover & Lyrics
       setCoverArtwork(track.coverUrl, track.title);
       applyLyricsToUI(track);
 
-      // Clean old object URL
       if (activeObjectUrl) {
         URL.revokeObjectURL(activeObjectUrl);
         activeObjectUrl = null;
       }
 
-      // Check offline blob first
-      const cachedEntry = await dbGet("blobs", track.id);
-      if (cachedEntry && cachedEntry.blob) {
-        activeObjectUrl = URL.createObjectURL(cachedEntry.blob);
+      // 1. Check RAM session map first (instant MP3 playback)
+      if (sessionAudioBlobs.has(track.id)) {
+        activeObjectUrl = URL.createObjectURL(sessionAudioBlobs.get(track.id));
         audio.src = activeObjectUrl;
-      } else if (track.streamUrl) {
-        audio.src = track.streamUrl;
+        audio.load();
       } else {
-        showToast("Аудиофайл недоступен");
-        return;
+        // 2. Check IndexedDB ArrayBuffer / Blob storage
+        const cachedEntry = await dbGet("blobs", track.id);
+        if (cachedEntry && (cachedEntry.buffer || cachedEntry.blob)) {
+          const blob = cachedEntry.buffer
+            ? new Blob([cachedEntry.buffer], { type: cachedEntry.mimeType || track.mimeType || "audio/mpeg" })
+            : cachedEntry.blob;
+          sessionAudioBlobs.set(track.id, blob);
+          activeObjectUrl = URL.createObjectURL(blob);
+          audio.src = activeObjectUrl;
+          audio.load();
+        } else if (track.streamUrl) {
+          audio.src = track.streamUrl;
+          audio.load();
+        } else {
+          showToast("Аудиофайл не найден. Добавьте MP3 заново.");
+          return;
+        }
       }
 
       renderLibrary();
@@ -1571,7 +1728,6 @@
         }
       }
 
-      // Auto-fetch cover & lyrics if missing
       if (!track.coverUrl || (!track.syncedLyrics && !track.plainLyrics)) {
         fetchCoverAndLyrics(track);
       }
@@ -1582,6 +1738,7 @@
       document.getElementById("iconPlay").style.display = playing ? "none" : "block";
       document.getElementById("iconPause").style.display = playing ? "block" : "none";
       document.getElementById("artworkFrame").classList.toggle("playing", playing);
+      document.getElementById("btnPlayPause").classList.toggle("is-playing", playing);
       if ("mediaSession" in navigator) {
         navigator.mediaSession.playbackState = playing ? "playing" : "paused";
       }
@@ -1591,8 +1748,8 @@
       if (!("mediaSession" in navigator)) return;
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title,
-        artist: track.artist || "Liquid Glass Player",
-        album: "Liquid Glass",
+        artist: track.artist || "Material Music",
+        album: "Material 3 Player",
         artwork: track.coverUrl ? [{ src: track.coverUrl, sizes: "512x512", type: "image/jpeg" }] : []
       });
     }
@@ -1604,8 +1761,7 @@
         if (next === state.currentIndex) next = (next + 1) % state.tracks.length;
         playTrackAtIndex(next, true);
       } else {
-        const next = (state.currentIndex + 1) % state.tracks.length;
-        playTrackAtIndex(next, true);
+        playTrackAtIndex((state.currentIndex + 1) % state.tracks.length, true);
       }
     }
 
@@ -1615,8 +1771,7 @@
         audio.currentTime = 0;
         return;
       }
-      const prev = (state.currentIndex - 1 + state.tracks.length) % state.tracks.length;
-      playTrackAtIndex(prev, true);
+      playTrackAtIndex((state.currentIndex - 1 + state.tracks.length) % state.tracks.length, true);
     }
 
     function formatTime(sec) {
@@ -1627,7 +1782,7 @@
     }
 
     // =========================================================================
-    // LIBRARY RENDERING
+    // LIBRARY RENDERING & NAVIGATION
     // =========================================================================
     function escapeHtml(str) {
       return String(str)
@@ -1637,17 +1792,26 @@
         .replace(/"/g, "&quot;");
     }
 
+    function switchTab(tabName) {
+      document.querySelectorAll(".m3-nav-dest").forEach(b => {
+        b.classList.toggle("active", b.dataset.tab === tabName);
+      });
+      document.querySelectorAll(".view-screen").forEach(v => {
+        v.classList.toggle("active", v.id === `view-${tabName}`);
+      });
+    }
+
     function renderLibrary() {
       const container = document.getElementById("trackListContainer");
       const filtered = state.tracks.filter(t => {
         if (state.filter === "all") return true;
-        if (state.filter === "cached") return t.cached;
+        if (state.filter === "cached") return t.cached || sessionAudioBlobs.has(t.id);
         return t.source === state.filter;
       });
 
       if (!filtered.length) {
-        container.innerHTML = `<div style="text-align:center;padding:32px 12px;color:var(--text-secondary);font-size:14px;">
-          Список пуст. Синхронизируйте Google Диск, Telegram или добавьте файлы с iPhone.
+        container.innerHTML = `<div style="text-align:center;padding:36px 16px;color:var(--md-sys-color-on-surface-variant);font-size:14px;">
+          Треков пока нет. Нажмите «Добавить MP3 / аудио с iPhone» или синхронизируйте Google Диск / Telegram.
         </div>`;
         return;
       }
@@ -1655,18 +1819,18 @@
       container.innerHTML = filtered.map(track => {
         const realIndex = state.tracks.findIndex(x => x.id === track.id);
         const isCurrent = realIndex === state.currentIndex;
-        const srcTag = track.source === "gdrive" ? "Google Диск" : track.source === "telegram" ? "Telegram" : "iPhone";
-        const cacheTag = track.cached ? " • Офлайн" : "";
+        const srcTag = track.source === "gdrive" ? "Google Диск" : track.source === "telegram" ? "Telegram" : "iPhone MP3";
+        const isOffline = track.cached || sessionAudioBlobs.has(track.id);
         return `
-          <div class="track-row ${isCurrent ? "current" : ""}" data-index="${realIndex}">
-            <img class="row-cover" src="${track.coverUrl || DEFAULT_COVER_SVG}" alt="" />
-            <div class="row-info">
-              <div class="row-title">${escapeHtml(track.title)}</div>
-              <div class="row-sub">${escapeHtml(track.artist || "Неизвестен")} • ${srcTag}${cacheTag}</div>
+          <div class="m3-list-item ${isCurrent ? "current" : ""}" data-index="${realIndex}">
+            <img class="item-cover" src="${track.coverUrl || DEFAULT_COVER_SVG}" alt="" />
+            <div class="item-texts">
+              <div class="item-title">${escapeHtml(track.title)}</div>
+              <div class="item-subtitle">${escapeHtml(track.artist || "Неизвестен")} • ${srcTag}${isOffline ? " • Офлайн" : ""}</div>
             </div>
-            <div class="row-actions">
-              <button class="glass-btn mini-action" data-action="cache" data-id="${track.id}" title="Офлайн">${track.cached ? "✓" : "↓"}</button>
-              <button class="glass-btn mini-action" data-action="delete" data-id="${track.id}" title="Удалить">✕</button>
+            <div class="item-actions">
+              <button class="m3-icon-btn" data-action="cache" data-id="${track.id}" title="Офлайн">${isOffline ? "✓" : "↓"}</button>
+              <button class="m3-icon-btn" data-action="delete" data-id="${track.id}" title="Удалить">✕</button>
             </div>
           </div>
         `;
@@ -1674,23 +1838,24 @@
     }
 
     // =========================================================================
-    // EVENT WIRING & INITIALIZATION
+    // INITIALIZATION
     // =========================================================================
     async function initApp() {
       await openDatabase();
       loadSavedConfig();
+      applyMaterial3TonalPalette(state.currentSeedHue, state.currentSeedSat);
 
       const savedTracks = await dbGetAll("tracks");
       state.tracks = savedTracks.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
 
-      // Seed demo track if empty so UI is immediately alive
       if (state.tracks.length === 0) {
         const demoTrack = {
-          id: "demo_lofi_1",
+          id: "demo_m3_1",
           title: "Midnight City",
           artist: "M83",
           source: "local",
           streamUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+          mimeType: "audio/mpeg",
           coverUrl: "",
           syncedLyrics: "",
           plainLyrics: "",
@@ -1702,25 +1867,26 @@
       }
 
       renderLibrary();
-      setCoverArtwork(DEFAULT_COVER_SVG, "Liquid Glass");
+      setCoverArtwork(DEFAULT_COVER_SVG, "MaterialMusic");
       if (state.tracks.length > 0) {
         playTrackAtIndex(0, false);
       }
 
-      // Navigation tabs
-      document.querySelectorAll(".dock-tab").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const tab = btn.dataset.tab;
-          document.querySelectorAll(".dock-tab").forEach(b => b.classList.remove("active"));
-          btn.classList.add("active");
-          document.querySelectorAll(".view-screen").forEach(v => v.classList.remove("active"));
-          document.getElementById(`view-${tab}`).classList.add("active");
-        });
+      // Theme switcher (Material 3 Dark / Light)
+      document.getElementById("btnToggleTheme").addEventListener("click", () => {
+        state.themeMode = state.themeMode === "dark" ? "light" : "dark";
+        localStorage.setItem("m3_theme_mode", state.themeMode);
+        updateThemeToggleIcons();
+        applyMaterial3TonalPalette(state.currentSeedHue, state.currentSeedSat);
+        showToast(state.themeMode === "dark" ? "Тёмная тема Material 3" : "Светлая тема Material 3");
       });
 
-      document.getElementById("miniLyricPreview").addEventListener("click", () => {
-        document.querySelector('.dock-tab[data-tab="lyrics"]').click();
+      // Navigation tabs
+      document.querySelectorAll(".m3-nav-dest").forEach(btn => {
+        btn.addEventListener("click", () => switchTab(btn.dataset.tab));
       });
+
+      document.getElementById("miniLyricPreview").addEventListener("click", () => switchTab("lyrics"));
 
       // Transport controls
       document.getElementById("btnPlayPause").addEventListener("click", async () => {
@@ -1729,8 +1895,12 @@
           return;
         }
         if (audio.paused) {
-          await audio.play();
-          setPlayingUI(true);
+          try {
+            await audio.play();
+            setPlayingUI(true);
+          } catch (e) {
+            showToast("Не удалось воспроизвести трек");
+          }
         } else {
           audio.pause();
           setPlayingUI(false);
@@ -1742,17 +1912,17 @@
 
       document.getElementById("btnShuffle").addEventListener("click", (e) => {
         state.shuffle = !state.shuffle;
-        e.currentTarget.classList.toggle("toggled", state.shuffle);
+        e.currentTarget.classList.toggle("tonal", state.shuffle);
         showToast(state.shuffle ? "Перемешивание включено" : "Перемешивание выключено");
       });
 
       document.getElementById("btnRepeat").addEventListener("click", (e) => {
         state.repeat = !state.repeat;
-        e.currentTarget.classList.toggle("toggled", state.repeat);
+        e.currentTarget.classList.toggle("tonal", state.repeat);
         showToast(state.repeat ? "Повтор трека включён" : "Повтор выключен");
       });
 
-      // Seek bar
+      // Seek slider
       const slider = document.getElementById("seekSlider");
       slider.addEventListener("input", () => {
         if (isFinite(audio.duration)) {
@@ -1778,7 +1948,7 @@
         }
       });
 
-      // Manual / Auto metadata & lyrics search
+      // Metadata & lyrics search
       document.getElementById("btnAutoMeta").addEventListener("click", () => {
         const track = state.tracks[state.currentIndex];
         if (track) fetchCoverAndLyrics(track);
@@ -1790,7 +1960,6 @@
         if (track && q) fetchCoverAndLyrics(track, q);
       });
 
-      // Click on lyric line to seek
       document.getElementById("lyricsContainer").addEventListener("click", (e) => {
         const line = e.target.closest(".lyric-line[data-time]");
         if (line && isFinite(audio.duration)) {
@@ -1808,20 +1977,17 @@
         if (track) cacheCurrentOrTrack(track);
       });
 
-      // Cloud Sync & Local Files
+      // Cloud Sync & Native Local MP3 Picker
       document.getElementById("btnSyncDrive").addEventListener("click", syncGoogleDrive);
       document.getElementById("btnSyncTelegram").addEventListener("click", syncTelegram);
 
-      document.getElementById("btnAddLocalFiles").addEventListener("click", () => {
-        document.getElementById("localFileInput").click();
-      });
-
-      document.getElementById("localFileInput").addEventListener("change", (e) => {
+      const fileInput = document.getElementById("localFileInput");
+      fileInput.addEventListener("change", (e) => {
         handleLocalFiles(e.target.files);
         e.target.value = "";
       });
 
-      // Settings toggle & save
+      // Settings accordion
       document.getElementById("toggleSettings").addEventListener("click", () => {
         const box = document.getElementById("settingsFields");
         const isOpen = box.classList.toggle("open");
@@ -1832,17 +1998,17 @@
 
       // Filter chips
       document.getElementById("filterChips").addEventListener("click", (e) => {
-        const chip = e.target.closest(".chip-btn");
+        const chip = e.target.closest(".m3-filter-chip");
         if (!chip) return;
         state.filter = chip.dataset.filter;
-        document.querySelectorAll(".chip-btn").forEach(c => c.classList.remove("active"));
+        document.querySelectorAll(".m3-filter-chip").forEach(c => c.classList.remove("active"));
         chip.classList.add("active");
         renderLibrary();
       });
 
-      // Library track clicks
+      // Track list interactions
       document.getElementById("trackListContainer").addEventListener("click", async (e) => {
-        const actionBtn = e.target.closest(".mini-action");
+        const actionBtn = e.target.closest("[data-action]");
         if (actionBtn) {
           e.stopPropagation();
           const id = actionBtn.dataset.id;
@@ -1853,6 +2019,7 @@
           if (action === "cache") {
             await cacheCurrentOrTrack(state.tracks[idx]);
           } else if (action === "delete") {
+            sessionAudioBlobs.delete(id);
             await dbDelete("tracks", id);
             await dbDelete("blobs", id);
             state.tracks.splice(idx, 1);
@@ -1869,15 +2036,15 @@
           return;
         }
 
-        const row = e.target.closest(".track-row");
+        const row = e.target.closest(".m3-list-item");
         if (row) {
           const idx = parseInt(row.dataset.index, 10);
-          playTrackAtIndex(idx, true);
-          document.querySelector('.dock-tab[data-tab="player"]').click();
+          await playTrackAtIndex(idx, true);
+          switchTab("player");
         }
       });
 
-      // iOS Lock Screen Media Session handlers
+      // iOS Lock Screen Media Session
       if ("mediaSession" in navigator) {
         navigator.mediaSession.setActionHandler("play", async () => {
           await audio.play();

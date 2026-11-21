@@ -1,13 +1,13 @@
 {
-  "appId": "com.liquidglass.musicplayer",
-  "appName": "Liquid Glass",
+  "appId": "com.material3.musicplayer",
+  "appName": "Material Music",
   "webDir": "www",
   "bundledWebRuntime": false,
   "ios": {
     "contentInset": "never",
     "allowsLinkPreview": false,
     "scrollEnabled": true,
-    "backgroundColor": "#07080c"
+    "backgroundColor": "#141218"
   },
   "server": {
     "allowNavigation": [

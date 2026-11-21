@@ -1,7 +1,7 @@
 {
-  "name": "liquid-glass-player",
-  "version": "1.0.0",
-  "description": "Liquid Glass iOS Music Player with Adaptive Cover Colors, Auto Lyrics, Google Drive & Telegram Sync",
+  "name": "material3-music-player",
+  "version": "1.1.0",
+  "description": "Material 3 Dynamic Color iOS Music Player with MP3 Import, Auto Cover & Lyrics, Google Drive & Telegram Sync",
   "main": "www/index.html",
   "scripts": {
     "build": "echo 'Static web bundle ready in www/'",
