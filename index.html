@@ -1,0 +1,1903 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Liquid Glass" />
+  <meta name="theme-color" content="#07080c" />
+  <title>Liquid Glass Player</title>
+  <style>
+    :root {
+      --bg-base: #07080c;
+      --accent-1: #6e56cf;
+      --accent-2: #0091ff;
+      --accent-3: #e5484d;
+      --accent-glow: rgba(110, 86, 207, 0.55);
+      --glass-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 100%);
+      --glass-bg-strong: linear-gradient(145deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.07) 100%);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --glass-highlight: inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -1px 1px rgba(255, 255, 255, 0.08);
+      --glass-shadow: 0 24px 48px rgba(0, 0, 0, 0.48);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.68);
+      --text-muted: rgba(255, 255, 255, 0.42);
+      --safe-top: env(safe-area-inset-top, 20px);
+      --safe-bottom: env(safe-area-inset-bottom, 20px);
+      --color-transition: 0.95s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    input, textarea {
+      user-select: text;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Animated Liquid Ambient Background */
+    .liquid-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      background: var(--bg-base);
+      pointer-events: none;
+    }
+
+    .liquid-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(85px);
+      opacity: 0.72;
+      transition: background var(--color-transition), transform 6s ease-in-out;
+      will-change: transform, background;
+    }
+
+    .orb-1 {
+      width: 78vw;
+      height: 78vw;
+      max-width: 440px;
+      max-height: 440px;
+      top: -10%;
+      left: -12%;
+      background: var(--accent-1);
+      animation: floatOrb1 14s infinite alternate ease-in-out;
+    }
+
+    .orb-2 {
+      width: 82vw;
+      height: 82vw;
+      max-width: 460px;
+      max-height: 460px;
+      bottom: 8%;
+      right: -18%;
+      background: var(--accent-2);
+      animation: floatOrb2 17s infinite alternate ease-in-out;
+    }
+
+    .orb-3 {
+      width: 65vw;
+      height: 65vw;
+      max-width: 360px;
+      max-height: 360px;
+      top: 38%;
+      left: 18%;
+      background: var(--accent-3);
+      opacity: 0.48;
+      animation: floatOrb3 19s infinite alternate ease-in-out;
+    }
+
+    .noise-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: radial-gradient(rgba(255,255,255,0.8) 1px, transparent 0);
+      background-size: 24px 24px;
+    }
+
+    @keyframes floatOrb1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(12%, 14%) scale(1.14); }
+    }
+    @keyframes floatOrb2 {
+      0% { transform: translate(0, 0) scale(1.05); }
+      100% { transform: translate(-14%, -10%) scale(0.92); }
+    }
+    @keyframes floatOrb3 {
+      0% { transform: translate(0, 0) scale(0.95); }
+      100% { transform: translate(-10%, 12%) scale(1.12); }
+    }
+
+    /* Liquid Glass Surface Primitive */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(42px) saturate(190%);
+      -webkit-backdrop-filter: blur(42px) saturate(190%);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-highlight), var(--glass-shadow);
+      position: relative;
+    }
+
+    .glass-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(155deg, rgba(255,255,255,0.45), rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.18));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .glass-btn {
+      background: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid rgba(255,255,255,0.24);
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.42), 0 8px 20px rgba(0,0,0,0.28);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease, box-shadow 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .glass-btn:active {
+      transform: scale(0.92);
+      background: linear-gradient(145deg, rgba(255,255,255,0.28), rgba(255,255,255,0.1));
+    }
+
+    /* App Layout */
+    .app-shell {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      padding-top: calc(var(--safe-top) + 8px);
+      padding-bottom: calc(var(--safe-bottom) + 10px);
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+
+    /* Top Status Pill */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+
+    .brand-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-1);
+      box-shadow: 0 0 10px var(--accent-1);
+      transition: background var(--color-transition), box-shadow var(--color-transition);
+    }
+
+    .source-badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Views Container */
+    .views-container {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .view-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(14px) scale(0.98);
+      transition: opacity 0.35s ease, transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .view-screen.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    /* PLAYER VIEW */
+    .player-view {
+      justify-content: space-between;
+      padding-bottom: 8px;
+    }
+
+    .artwork-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 0;
+      padding: 6px 0;
+    }
+
+    .artwork-frame {
+      position: relative;
+      width: min(74vw, 300px);
+      height: min(74vw, 300px);
+      border-radius: 32px;
+      padding: 8px;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), box-shadow var(--color-transition);
+      box-shadow: 0 28px 60px -12px var(--accent-glow), inset 0 1px 1px rgba(255,255,255,0.45);
+    }
+
+    .artwork-frame.playing {
+      transform: scale(1.03);
+    }
+
+    .artwork-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 25px;
+      object-fit: cover;
+      display: block;
+      background: rgba(255,255,255,0.06);
+      transition: opacity 0.4s ease;
+    }
+
+    .artwork-sheen {
+      position: absolute;
+      inset: 8px;
+      border-radius: 25px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 48%);
+      pointer-events: none;
+    }
+
+    .meta-block {
+      margin-top: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .track-titles {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .track-title {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0 0 4px 0;
+    }
+
+    .track-artist {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+    }
+
+    .meta-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .icon-circle-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .icon-circle-btn.active-state {
+      background: linear-gradient(145deg, var(--accent-1), var(--accent-2));
+      border-color: rgba(255,255,255,0.5);
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+
+    /* Controls Card */
+    .controls-card {
+      border-radius: 30px;
+      padding: 16px 18px 18px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 14px;
+    }
+
+    .liquid-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      outline: none;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .liquid-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 12px rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.4);
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    .liquid-slider::-webkit-slider-thumb:active {
+      transform: scale(1.3);
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .transport-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 2px 4px;
+    }
+
+    .transport-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+    }
+
+    .transport-btn.small {
+      width: 38px;
+      height: 38px;
+      color: var(--text-secondary);
+    }
+
+    .transport-btn.small.toggled {
+      color: #fff;
+      background: rgba(255,255,255,0.22);
+      border-color: rgba(255,255,255,0.45);
+    }
+
+    .play-orb-btn {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, rgba(255,255,255,0.34), rgba(255,255,255,0.12));
+      border: 1px solid rgba(255,255,255,0.48);
+      box-shadow: inset 0 2px 3px rgba(255,255,255,0.65), 0 12px 28px var(--accent-glow);
+    }
+
+    .mini-lyric-preview {
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 13px;
+      color: var(--text-secondary);
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+    }
+
+    /* LYRICS VIEW */
+    .lyrics-card {
+      flex: 1;
+      border-radius: 30px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      margin-bottom: 8px;
+    }
+
+    .lyrics-search-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-shrink: 0;
+    }
+
+    .glass-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: #fff;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .glass-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .lyrics-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 8px 48px;
+      scroll-behavior: smooth;
+      mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);
+    }
+
+    .lyrics-scroll::-webkit-scrollbar {
+      display: none;
+    }
+
+    .lyric-line {
+      font-size: 21px;
+      font-weight: 700;
+      line-height: 1.45;
+      margin-bottom: 16px;
+      color: rgba(255, 255, 255, 0.34);
+      transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
+      transform-origin: left center;
+    }
+
+    .lyric-line.active {
+      color: #ffffff;
+      transform: scale(1.04);
+      text-shadow: 0 0 24px var(--accent-glow);
+    }
+
+    .lyric-line.plain {
+      font-size: 16px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: default;
+      margin-bottom: 10px;
+    }
+
+    /* LIBRARY & CLOUD SYNC VIEW */
+    .library-view {
+      gap: 10px;
+      padding-bottom: 8px;
+    }
+
+    .sync-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .sync-btn {
+      padding: 11px 12px;
+      border-radius: 18px;
+      font-size: 13px;
+      font-weight: 600;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+
+    .sync-btn.full-span {
+      grid-column: span 2;
+      justify-content: center;
+    }
+
+    .filter-chips {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      padding-bottom: 2px;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip-btn {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+      color: var(--text-secondary);
+    }
+
+    .chip-btn.active {
+      background: linear-gradient(145deg, var(--accent-1), var(--accent-2));
+      color: #fff;
+      border-color: rgba(255,255,255,0.45);
+    }
+
+    .library-list-card {
+      flex: 1;
+      border-radius: 26px;
+      padding: 10px;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .library-list-card::-webkit-scrollbar {
+      display: none;
+    }
+
+    .track-row {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 9px 10px;
+      border-radius: 18px;
+      transition: background 0.25s ease;
+      cursor: pointer;
+    }
+
+    .track-row:active {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .track-row.current {
+      background: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+      border: 1px solid rgba(255,255,255,0.22);
+    }
+
+    .row-cover {
+      width: 46px;
+      height: 46px;
+      border-radius: 13px;
+      object-fit: cover;
+      background: rgba(255,255,255,0.08);
+      flex-shrink: 0;
+    }
+
+    .row-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .row-title {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 3px;
+    }
+
+    .row-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .mini-action {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      font-size: 13px;
+    }
+
+    /* Settings Drawer inside Library */
+    .settings-box {
+      border-radius: 22px;
+      padding: 12px 14px;
+      flex-shrink: 0;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .settings-fields {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .settings-fields.open {
+      display: flex;
+    }
+
+    /* Bottom Liquid Dock */
+    .bottom-dock {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      padding: 6px;
+      border-radius: 26px;
+      flex-shrink: 0;
+    }
+
+    .dock-tab {
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      padding: 9px 6px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .dock-tab.active {
+      background: linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08));
+      color: #ffffff;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.45), 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      top: calc(var(--safe-top) + 46px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      z-index: 50;
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      max-width: 90vw;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Dynamic Liquid Ambient Canvas -->
+  <div class="liquid-canvas">
+    <div class="liquid-orb orb-1" id="orb1"></div>
+    <div class="liquid-orb orb-2" id="orb2"></div>
+    <div class="liquid-orb orb-3" id="orb3"></div>
+  </div>
+  <div class="noise-overlay"></div>
+
+  <!-- Toast -->
+  <div class="toast glass-panel" id="toast">Готово</div>
+
+  <div class="app-shell">
+    <!-- Top Header -->
+    <div class="top-bar">
+      <div class="brand-pill glass-panel">
+        <span class="status-dot" id="statusDot"></span>
+        <span>Liquid Glass</span>
+      </div>
+      <div class="source-badge glass-panel" id="activeSourceBadge">
+        <span>Локально</span>
+      </div>
+    </div>
+
+    <!-- Main Views -->
+    <div class="views-container">
+
+      <!-- VIEW 1: PLAYER -->
+      <section class="view-screen player-view active" id="view-player">
+        <div class="artwork-stage">
+          <div class="artwork-frame glass-panel" id="artworkFrame">
+            <img id="coverImg" class="artwork-img" alt="Album Cover" />
+            <div class="artwork-sheen"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="meta-block">
+            <div class="track-titles">
+              <h1 class="track-title" id="trackTitle">Выберите трек</h1>
+              <p class="track-artist" id="trackArtist">Google Диск • Telegram • Файлы</p>
+            </div>
+            <div class="meta-actions">
+              <button class="glass-btn icon-circle-btn" id="btnAutoMeta" title="Найти обложку и текст в сети">
+                <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              </button>
+              <button class="glass-btn icon-circle-btn" id="btnCacheTrack" title="Сохранить в офлайн-кэш">
+                <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="controls-card glass-panel">
+            <div class="progress-wrap">
+              <input type="range" class="liquid-slider" id="seekSlider" min="0" max="1000" value="0" />
+              <div class="time-row">
+                <span id="timeCurrent">0:00</span>
+                <span id="timeTotal">0:00</span>
+              </div>
+            </div>
+
+            <div class="transport-row">
+              <button class="glass-btn transport-btn small" id="btnShuffle" title="Перемешать">
+                <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+              </button>
+              <button class="glass-btn transport-btn" id="btnPrev" title="Назад">
+                <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+              </button>
+              <button class="glass-btn play-orb-btn" id="btnPlayPause" title="Играть / Пауза">
+                <svg id="iconPlay" viewBox="0 0 24 24" style="width:30px;height:30px;"><path d="M8 5v14l11-7z"/></svg>
+                <svg id="iconPause" viewBox="0 0 24 24" style="width:30px;height:30px;display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+              </button>
+              <button class="glass-btn transport-btn" id="btnNext" title="Вперёд">
+                <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+              </button>
+              <button class="glass-btn transport-btn small" id="btnRepeat" title="Повтор">
+                <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+              </button>
+            </div>
+
+            <div class="mini-lyric-preview" id="miniLyricPreview">
+              Нажмите, чтобы открыть караоке-текст песни
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: LYRICS -->
+      <section class="view-screen" id="view-lyrics">
+        <div class="lyrics-card glass-panel">
+          <div class="lyrics-search-bar">
+            <input type="text" class="glass-input" id="manualLyricQuery" placeholder="Исполнитель - Название трека..." />
+            <button class="glass-btn" id="btnManualLyricSearch" style="padding:0 14px;border-radius:14px;font-size:13px;font-weight:600;">Найти</button>
+          </div>
+          <div class="lyrics-scroll" id="lyricsContainer">
+            <div class="lyric-line plain">Текст песни появится автоматически при запуске трека.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: LIBRARY & CLOUD SYNC -->
+      <section class="view-screen library-view" id="view-library">
+        <div class="sync-grid">
+          <button class="glass-btn sync-btn" id="btnSyncDrive">
+            <svg viewBox="0 0 24 24" style="color:#4ade80;"><path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5L7.71 3.5zm1.58 0l6.56 11.5h6.86L16.15 3.5H9.29zm5.42 12.5H4.15l-3.43 6h17.42l3.43-6H14.71z"/></svg>
+            <span>Google Диск</span>
+          </button>
+          <button class="glass-btn sync-btn" id="btnSyncTelegram">
+            <svg viewBox="0 0 24 24" style="color:#38bdf8;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.96-.75 3.78-1.65 6.31-2.74 7.58-3.27 3.61-1.51 4.35-1.77 4.84-1.78.11 0 .35.03.5.16.13.1.17.24.18.34.02.07.02.21 0 .33z"/></svg>
+            <span>Telegram</span>
+          </button>
+          <button class="glass-btn sync-btn full-span" id="btnAddLocalFiles">
+            <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            <span>Добавить аудиофайлы с iPhone</span>
+          </button>
+          <input type="file" id="localFileInput" accept="audio/*" multiple style="display:none;" />
+        </div>
+
+        <!-- Collapsible Cloud Keys Config -->
+        <div class="settings-box glass-panel">
+          <div class="settings-header" id="toggleSettings">
+            <span>Ключи Google Диска и Telegram</span>
+            <span id="settingsArrow">▼</span>
+          </div>
+          <div class="settings-fields" id="settingsFields">
+            <input type="text" class="glass-input" id="cfgGoogleKey" placeholder="Google API Key (AIzaSy...)" />
+            <input type="text" class="glass-input" id="cfgDriveFolder" placeholder="ID папки Google Диска" />
+            <input type="text" class="glass-input" id="cfgTgToken" placeholder="Telegram Bot Token (123456:ABC...)" />
+            <input type="text" class="glass-input" id="cfgTgChatId" placeholder="Telegram Chat ID (опционально)" />
+            <button class="glass-btn" id="btnSaveConfig" style="padding:10px;border-radius:14px;font-size:13px;font-weight:600;">Сохранить ключи</button>
+          </div>
+        </div>
+
+        <!-- Source Filter -->
+        <div class="filter-chips" id="filterChips">
+          <button class="glass-btn chip-btn active" data-filter="all">Все треки</button>
+          <button class="glass-btn chip-btn" data-filter="gdrive">Google Диск</button>
+          <button class="glass-btn chip-btn" data-filter="telegram">Telegram</button>
+          <button class="glass-btn chip-btn" data-filter="cached">Офлайн-кэш</button>
+        </div>
+
+        <!-- Track List -->
+        <div class="library-list-card glass-panel" id="trackListContainer"></div>
+      </section>
+
+    </div>
+
+    <!-- Bottom Glass Dock -->
+    <nav class="bottom-dock glass-panel">
+      <button class="dock-tab active" data-tab="player">
+        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        <span>Плеер</span>
+      </button>
+      <button class="dock-tab" data-tab="lyrics">
+        <svg viewBox="0 0 24 24"><path d="M14 17H4v2h10v-2zm6-8H4v2h16V9zM4 15h16v-2H4v2zM4 5v2h16V5H4z"/></svg>
+        <span>Текст</span>
+      </button>
+      <button class="dock-tab" data-tab="library">
+        <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9h-4v4h-2v-4H9V9h4V5h2v4h4v2z"/></svg>
+        <span>Облако и треки</span>
+      </button>
+    </nav>
+  </div>
+
+  <script>
+    // =========================================================================
+    // ВСТАВЬТЕ ВАШИ КЛЮЧИ СЮДА (ИЛИ ВВЕДИТЕ В НАСТРОЙКАХ ВНУТРИ ПРИЛОЖЕНИЯ)
+    // =========================================================================
+    const APP_CONFIG = {
+      GOOGLE_API_KEY: "",
+      GOOGLE_DRIVE_FOLDER_ID: "",
+      TELEGRAM_BOT_TOKEN: "",
+      TELEGRAM_CHAT_ID: ""
+    };
+
+    // =========================================================================
+    // STATE & INDEXEDDB OFFLINE STORAGE
+    // =========================================================================
+    const DB_NAME = "LiquidGlassMusicDB";
+    const DB_VERSION = 1;
+    let db = null;
+
+    const DEFAULT_COVER_SVG = "data:image/svg+xml;utf8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#6e56cf"/>
+            <stop offset="50%" stop-color="#0091ff"/>
+            <stop offset="100%" stop-color="#e5484d"/>
+          </linearGradient>
+        </defs>
+        <rect width="400" height="400" fill="url(#g)"/>
+        <circle cx="200" cy="200" r="95" fill="rgba(255,255,255,0.18)"/>
+        <circle cx="200" cy="200" r="28" fill="rgba(255,255,255,0.85)"/>
+      </svg>
+    `);
+
+    const state = {
+      tracks: [],
+      currentIndex: -1,
+      isPlaying: false,
+      shuffle: false,
+      repeat: false,
+      filter: "all",
+      parsedLyrics: [], // [{time: seconds, text: string}]
+      plainLyrics: "",
+      activeLyricIdx: -1,
+      config: { ...APP_CONFIG }
+    };
+
+    const audio = new Audio();
+    audio.preload = "auto";
+    let activeObjectUrl = null;
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => t.classList.remove("show"), 2800);
+    }
+
+    function openDatabase() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains("tracks")) {
+            database.createObjectStore("tracks", { keyPath: "id" });
+          }
+          if (!database.objectStoreNames.contains("blobs")) {
+            database.createObjectStore("blobs", { keyPath: "id" });
+          }
+        };
+        req.onsuccess = (e) => {
+          db = e.target.result;
+          resolve(db);
+        };
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    function dbPut(storeName, value) {
+      return new Promise((resolve, reject) => {
+        if (!db) return resolve();
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).put(value);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    function dbGet(storeName, key) {
+      return new Promise((resolve, reject) => {
+        if (!db) return resolve(null);
+        const tx = db.transaction(storeName, "readonly");
+        const req = tx.objectStore(storeName).get(key);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    function dbGetAll(storeName) {
+      return new Promise((resolve, reject) => {
+        if (!db) return resolve([]);
+        const tx = db.transaction(storeName, "readonly");
+        const req = tx.objectStore(storeName).getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    function dbDelete(storeName, key) {
+      return new Promise((resolve, reject) => {
+        if (!db) return resolve();
+        const tx = db.transaction(storeName, "readwrite");
+        tx.objectStore(storeName).delete(key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = (e) => reject(e.target.error);
+      });
+    }
+
+    // =========================================================================
+    // CONFIG PERSISTENCE
+    // =========================================================================
+    function loadSavedConfig() {
+      try {
+        const raw = localStorage.getItem("lg_player_config");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          state.config = {
+            GOOGLE_API_KEY: parsed.GOOGLE_API_KEY || APP_CONFIG.GOOGLE_API_KEY,
+            GOOGLE_DRIVE_FOLDER_ID: parsed.GOOGLE_DRIVE_FOLDER_ID || APP_CONFIG.GOOGLE_DRIVE_FOLDER_ID,
+            TELEGRAM_BOT_TOKEN: parsed.TELEGRAM_BOT_TOKEN || APP_CONFIG.TELEGRAM_BOT_TOKEN,
+            TELEGRAM_CHAT_ID: parsed.TELEGRAM_CHAT_ID || APP_CONFIG.TELEGRAM_CHAT_ID
+          };
+        }
+      } catch (e) {}
+      document.getElementById("cfgGoogleKey").value = state.config.GOOGLE_API_KEY;
+      document.getElementById("cfgDriveFolder").value = state.config.GOOGLE_DRIVE_FOLDER_ID;
+      document.getElementById("cfgTgToken").value = state.config.TELEGRAM_BOT_TOKEN;
+      document.getElementById("cfgTgChatId").value = state.config.TELEGRAM_CHAT_ID;
+    }
+
+    function saveConfigFromInputs() {
+      state.config = {
+        GOOGLE_API_KEY: document.getElementById("cfgGoogleKey").value.trim(),
+        GOOGLE_DRIVE_FOLDER_ID: document.getElementById("cfgDriveFolder").value.trim(),
+        TELEGRAM_BOT_TOKEN: document.getElementById("cfgTgToken").value.trim(),
+        TELEGRAM_CHAT_ID: document.getElementById("cfgTgChatId").value.trim()
+      };
+      localStorage.setItem("lg_player_config", JSON.stringify(state.config));
+      showToast("Настройки сохранены");
+    }
+
+    // =========================================================================
+    // ADAPTIVE COLOR EXTRACTION FROM ALBUM COVER
+    // =========================================================================
+    function extractColorsFromImage(imgElement) {
+      try {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        const size = 48;
+        canvas.width = size;
+        canvas.height = size;
+        ctx.drawImage(imgElement, 0, 0, size, size);
+        const data = ctx.getImageData(0, 0, size, size).data;
+
+        const buckets = {};
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const a = data[i + 3];
+          if (a < 180) continue;
+
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          const lum = (max + min) / 2;
+          const sat = max === min ? 0 : (max - min) / (1 - Math.abs(2 * (lum / 255) - 1) || 1);
+
+          // Skip near-black and near-white pixels for richer glass tint
+          if (lum < 28 || lum > 232) continue;
+
+          const qr = Math.round(r / 32) * 32;
+          const qg = Math.round(g / 32) * 32;
+          const qb = Math.round(b / 32) * 32;
+          const key = `${qr},${qg},${qb}`;
+          const weight = 1 + (sat / 255) * 3.5;
+          if (!buckets[key]) buckets[key] = { r: 0, g: 0, b: 0, weight: 0 };
+          buckets[key].r += r * weight;
+          buckets[key].g += g * weight;
+          buckets[key].b += b * weight;
+          buckets[key].weight += weight;
+        }
+
+        const sorted = Object.values(buckets)
+          .map(b => ({
+            r: Math.min(255, Math.round(b.r / b.weight)),
+            g: Math.min(255, Math.round(b.g / b.weight)),
+            b: Math.min(255, Math.round(b.b / b.weight)),
+            weight: b.weight
+          }))
+          .sort((a, b) => b.weight - a.weight);
+
+        if (sorted.length >= 1) {
+          const c1 = sorted[0];
+          const c2 = sorted[1] || { r: Math.min(255, c1.r + 45), g: Math.max(0, c1.g - 30), b: Math.min(255, c1.b + 55) };
+          const c3 = sorted[2] || { r: Math.max(0, c1.r - 40), g: Math.min(255, c1.g + 45), b: Math.max(0, c1.b - 25) };
+
+          applyThemePalette(
+            `rgb(${c1.r}, ${c1.g}, ${c1.b})`,
+            `rgb(${c2.r}, ${c2.g}, ${c2.b})`,
+            `rgb(${c3.r}, ${c3.g}, ${c3.b})`,
+            `rgba(${c1.r}, ${c1.g}, ${c1.b}, 0.55)`
+          );
+          return;
+        }
+      } catch (err) {
+        // Fallback if CORS blocks canvas read
+      }
+      applyFallbackHashPalette(document.getElementById("trackTitle").textContent);
+    }
+
+    function applyFallbackHashPalette(seedText) {
+      let hash = 0;
+      for (let i = 0; i < seedText.length; i++) {
+        hash = seedText.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const h1 = Math.abs(hash) % 360;
+      const h2 = (h1 + 52) % 360;
+      const h3 = (h1 + 145) % 360;
+      applyThemePalette(
+        `hsl(${h1}, 78%, 54%)`,
+        `hsl(${h2}, 82%, 48%)`,
+        `hsl(${h3}, 74%, 46%)`,
+        `hsla(${h1}, 80%, 55%, 0.52)`
+      );
+    }
+
+    function applyThemePalette(c1, c2, c3, glow) {
+      const root = document.documentElement.style;
+      root.setProperty("--accent-1", c1);
+      root.setProperty("--accent-2", c2);
+      root.setProperty("--accent-3", c3);
+      root.setProperty("--accent-glow", glow);
+    }
+
+    function setCoverArtwork(url, fallbackSeed) {
+      const img = document.getElementById("coverImg");
+      img.crossOrigin = "anonymous";
+      img.onload = () => extractColorsFromImage(img);
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = DEFAULT_COVER_SVG;
+        applyFallbackHashPalette(fallbackSeed || "LiquidGlass");
+      };
+      img.src = url || DEFAULT_COVER_SVG;
+    }
+
+    // =========================================================================
+    // AUTO SEARCH COVER ART (iTunes API) & SYNCED LYRICS (LRCLIB API)
+    // =========================================================================
+    function cleanFilenameToQuery(rawName) {
+      return rawName
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[_]+/g, " ")
+        .replace(/\(.*?\)|\[.*?\]/g, "")
+        .replace(/\b(official|video|audio|lyrics|hd|hq|320kbps|mp3|flac|remastered)\b/gi, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function splitArtistAndTitle(rawName) {
+      const cleaned = cleanFilenameToQuery(rawName);
+      const parts = cleaned.split(/\s[-–—]\s/);
+      if (parts.length >= 2) {
+        return { artist: parts[0].trim(), title: parts.slice(1).join(" - ").trim(), query: cleaned };
+      }
+      return { artist: "", title: cleaned, query: cleaned };
+    }
+
+    async function fetchCoverAndLyrics(track, customQuery = null) {
+      const searchStr = customQuery || `${track.artist ? track.artist + " " : ""}${track.title}`.trim();
+      if (!searchStr) return;
+
+      showToast("Поиск обложки и текста...");
+
+      // 1. Search Cover via iTunes Search API
+      let resolvedArtist = track.artist;
+      let resolvedTitle = track.title;
+
+      try {
+        const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(searchStr)}&media=music&entity=song&limit=3`;
+        const res = await fetch(itunesUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.results && data.results.length > 0) {
+            const hit = data.results[0];
+            const hdCover = hit.artworkUrl100
+              ? hit.artworkUrl100.replace("100x100bb", "600x600bb")
+              : null;
+
+            if (hdCover) {
+              track.coverUrl = hdCover;
+              if (!track.artist && hit.artistName) {
+                track.artist = hit.artistName;
+                resolvedArtist = hit.artistName;
+              }
+              if (hit.trackName && !customQuery) {
+                resolvedTitle = hit.trackName;
+              }
+              await dbPut("tracks", track);
+              if (state.tracks[state.currentIndex]?.id === track.id) {
+                setCoverArtwork(hdCover, track.title);
+                document.getElementById("trackArtist").textContent = track.artist || "Неизвестный исполнитель";
+                updateMediaSession(track);
+              }
+              renderLibrary();
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Cover search error:", e);
+      }
+
+      // 2. Search Synced Lyrics via LRCLIB
+      try {
+        let lyricData = null;
+        if (resolvedArtist && resolvedTitle && !customQuery) {
+          const exactUrl = `https://lrclib.net/api/get?artist_name=${encodeURIComponent(resolvedArtist)}&track_name=${encodeURIComponent(resolvedTitle)}`;
+          const exactRes = await fetch(exactUrl);
+          if (exactRes.ok) {
+            lyricData = await exactRes.json();
+          }
+        }
+
+        if (!lyricData || (!lyricData.syncedLyrics && !lyricData.plainLyrics)) {
+          const searchUrl = `https://lrclib.net/api/search?q=${encodeURIComponent(searchStr)}`;
+          const searchRes = await fetch(searchUrl);
+          if (searchRes.ok) {
+            const list = await searchRes.json();
+            if (Array.isArray(list) && list.length > 0) {
+              lyricData = list.find(item => item.syncedLyrics) || list[0];
+            }
+          }
+        }
+
+        if (lyricData && (lyricData.syncedLyrics || lyricData.plainLyrics)) {
+          track.syncedLyrics = lyricData.syncedLyrics || "";
+          track.plainLyrics = lyricData.plainLyrics || "";
+          await dbPut("tracks", track);
+          if (state.tracks[state.currentIndex]?.id === track.id) {
+            applyLyricsToUI(track);
+          }
+          showToast("Обложка и текст обновлены");
+        } else {
+          showToast("Текст не найден в базе");
+        }
+      } catch (e) {
+        console.warn("Lyrics search error:", e);
+        showToast("Ошибка поиска текста");
+      }
+    }
+
+    function parseLRC(lrcText) {
+      if (!lrcText) return [];
+      const lines = lrcText.split("\n");
+      const result = [];
+      const regex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\](.*)/;
+      for (const line of lines) {
+        const m = line.match(regex);
+        if (m) {
+          const min = parseInt(m[1], 10);
+          const sec = parseInt(m[2], 10);
+          const ms = m[3] ? parseInt(m[3].padEnd(3, "0"), 10) / 1000 : 0;
+          const text = m[4].trim();
+          if (text) {
+            result.push({ time: min * 60 + sec + ms, text });
+          }
+        }
+      }
+      return result.sort((a, b) => a.time - b.time);
+    }
+
+    function applyLyricsToUI(track) {
+      const container = document.getElementById("lyricsContainer");
+      const preview = document.getElementById("miniLyricPreview");
+      state.parsedLyrics = parseLRC(track.syncedLyrics);
+      state.plainLyrics = track.plainLyrics || "";
+      state.activeLyricIdx = -1;
+
+      if (state.parsedLyrics.length > 0) {
+        container.innerHTML = state.parsedLyrics
+          .map((item, idx) => `<div class="lyric-line" data-idx="${idx}" data-time="${item.time}">${escapeHtml(item.text)}</div>`)
+          .join("");
+        preview.textContent = state.parsedLyrics[0].text;
+      } else if (state.plainLyrics) {
+        container.innerHTML = state.plainLyrics
+          .split("\n")
+          .filter(Boolean)
+          .map(line => `<div class="lyric-line plain">${escapeHtml(line)}</div>`)
+          .join("");
+        preview.textContent = "Открыть полный текст песни";
+      } else {
+        container.innerHTML = `<div class="lyric-line plain">Текст для этого трека пока не найден. Попробуйте ввести название вручную выше.</div>`;
+        preview.textContent = "Текст не найден — нажмите для поиска";
+      }
+    }
+
+    function syncLyricsHighlight(currentTime) {
+      if (!state.parsedLyrics.length) return;
+      let idx = -1;
+      for (let i = 0; i < state.parsedLyrics.length; i++) {
+        if (currentTime >= state.parsedLyrics[i].time - 0.25) {
+          idx = i;
+        } else {
+          break;
+        }
+      }
+      if (idx !== -1 && idx !== state.activeLyricIdx) {
+        state.activeLyricIdx = idx;
+        const container = document.getElementById("lyricsContainer");
+        const nodes = container.querySelectorAll(".lyric-line");
+        nodes.forEach((n, i) => n.classList.toggle("active", i === idx));
+        if (nodes[idx]) {
+          nodes[idx].scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        document.getElementById("miniLyricPreview").textContent = state.parsedLyrics[idx].text;
+      }
+    }
+
+    // =========================================================================
+    // GOOGLE DRIVE SYNC
+    // =========================================================================
+    async function syncGoogleDrive() {
+      const apiKey = state.config.GOOGLE_API_KEY;
+      const folderId = state.config.GOOGLE_DRIVE_FOLDER_ID;
+      if (!apiKey || !folderId) {
+        showToast("Укажите Google API Key и ID папки");
+        document.getElementById("settingsFields").classList.add("open");
+        return;
+      }
+
+      showToast("Синхронизация Google Диска...");
+      try {
+        const q = encodeURIComponent(`'${folderId}' in parents and trashed = false and (mimeType contains 'audio/' or name contains '.mp3' or name contains '.m4a' or name contains '.flac' or name contains '.wav')`);
+        const url = `https://www.googleapis.com/drive/v3/files?q=${q}&key=${encodeURIComponent(apiKey)}&fields=files(id,name,size,mimeType)&pageSize=100`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error?.message || "Ошибка Google Drive API");
+        }
+
+        const files = data.files || [];
+        let added = 0;
+        for (const file of files) {
+          const trackId = `gdrive_${file.id}`;
+          const exists = state.tracks.find(t => t.id === trackId);
+          if (!exists) {
+            const parsed = splitArtistAndTitle(file.name);
+            const streamUrl = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${encodeURIComponent(apiKey)}`;
+            const newTrack = {
+              id: trackId,
+              title: parsed.title || file.name,
+              artist: parsed.artist || "",
+              source: "gdrive",
+              streamUrl,
+              coverUrl: "",
+              syncedLyrics: "",
+              plainLyrics: "",
+              cached: false,
+              addedAt: Date.now()
+            };
+            state.tracks.unshift(newTrack);
+            await dbPut("tracks", newTrack);
+            added++;
+          }
+        }
+        renderLibrary();
+        showToast(`Google Диск: найдено ${files.length}, новых ${added}`);
+      } catch (err) {
+        console.error(err);
+        showToast(`Ошибка Диска: ${err.message}`);
+      }
+    }
+
+    // =========================================================================
+    // TELEGRAM BOT SYNC
+    // =========================================================================
+    async function syncTelegram() {
+      const token = state.config.TELEGRAM_BOT_TOKEN;
+      const targetChat = state.config.TELEGRAM_CHAT_ID;
+      if (!token) {
+        showToast("Укажите Telegram Bot Token");
+        document.getElementById("settingsFields").classList.add("open");
+        return;
+      }
+
+      showToast("Синхронизация Telegram...");
+      try {
+        const updatesUrl = `https://api.telegram.org/bot${token}/getUpdates?limit=100&allowed_updates=${encodeURIComponent(JSON.stringify(["message", "channel_post"]))}`;
+        const res = await fetch(updatesUrl);
+        const data = await res.json();
+
+        if (!data.ok) {
+          throw new Error(data.description || "Ошибка Telegram API");
+        }
+
+        const updates = data.result || [];
+        let added = 0;
+
+        for (const upd of updates) {
+          const msg = upd.message || upd.channel_post;
+          if (!msg) continue;
+          if (targetChat && String(msg.chat?.id) !== String(targetChat)) continue;
+
+          const audioObj = msg.audio || (msg.document && msg.document.mime_type?.startsWith("audio/") ? msg.document : null);
+          if (!audioObj) continue;
+
+          const trackId = `tg_${audioObj.file_unique_id || audioObj.file_id}`;
+          if (state.tracks.some(t => t.id === trackId)) continue;
+
+          // Resolve file_path via getFile
+          const fileInfoRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${encodeURIComponent(audioObj.file_id)}`);
+          const fileInfo = await fileInfoRes.json();
+          if (!fileInfo.ok || !fileInfo.result?.file_path) continue;
+
+          const streamUrl = `https://api.telegram.org/file/bot${token}/${fileInfo.result.file_path}`;
+          const rawName = audioObj.title || audioObj.file_name || "Telegram Audio";
+          const parsed = splitArtistAndTitle(rawName);
+
+          const newTrack = {
+            id: trackId,
+            title: audioObj.title || parsed.title,
+            artist: audioObj.performer || parsed.artist || "",
+            source: "telegram",
+            streamUrl,
+            coverUrl: "",
+            syncedLyrics: "",
+            plainLyrics: "",
+            cached: false,
+            addedAt: Date.now()
+          };
+          state.tracks.unshift(newTrack);
+          await dbPut("tracks", newTrack);
+          added++;
+        }
+
+        renderLibrary();
+        showToast(`Telegram: добавлено ${added} треков`);
+      } catch (err) {
+        console.error(err);
+        showToast(`Ошибка Telegram: ${err.message}`);
+      }
+    }
+
+    // =========================================================================
+    // LOCAL FILES & OFFLINE CACHING
+    // =========================================================================
+    async function handleLocalFiles(fileList) {
+      if (!fileList || !fileList.length) return;
+      let count = 0;
+      for (const file of fileList) {
+        const id = `local_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+        const parsed = splitArtistAndTitle(file.name);
+        const track = {
+          id,
+          title: parsed.title || file.name,
+          artist: parsed.artist || "",
+          source: "local",
+          streamUrl: "",
+          coverUrl: "",
+          syncedLyrics: "",
+          plainLyrics: "",
+          cached: true,
+          addedAt: Date.now()
+        };
+        await dbPut("blobs", { id, blob: file });
+        await dbPut("tracks", track);
+        state.tracks.unshift(track);
+        count++;
+      }
+      renderLibrary();
+      showToast(`Добавлено ${count} треков`);
+      if (state.currentIndex === -1 && state.tracks.length > 0) {
+        playTrackAtIndex(0, false);
+      }
+    }
+
+    async function cacheCurrentOrTrack(track) {
+      if (!track) return;
+      if (track.cached) {
+        showToast("Трек уже в офлайн-кэше");
+        return;
+      }
+      if (!track.streamUrl) return;
+      showToast("Скачивание в офлайн-кэш...");
+      try {
+        const res = await fetch(track.streamUrl);
+        if (!res.ok) throw new Error("Не удалось скачать файл");
+        const blob = await res.blob();
+        await dbPut("blobs", { id: track.id, blob });
+        track.cached = true;
+        await dbPut("tracks", track);
+        updateCacheIcon(true);
+        renderLibrary();
+        showToast("Сохранено для офлайн-прослушивания");
+      } catch (e) {
+        showToast("Ошибка кэширования (проверьте сеть)");
+      }
+    }
+
+    function updateCacheIcon(isCached) {
+      const btn = document.getElementById("btnCacheTrack");
+      btn.classList.toggle("active-state", Boolean(isCached));
+    }
+
+    // =========================================================================
+    // PLAYBACK ENGINE & MEDIA SESSION
+    // =========================================================================
+    async function playTrackAtIndex(index, autoplay = true) {
+      if (index < 0 || index >= state.tracks.length) return;
+      state.currentIndex = index;
+      const track = state.tracks[index];
+
+      document.getElementById("trackTitle").textContent = track.title;
+      document.getElementById("trackArtist").textContent = track.artist || "Поиск исполнителя...";
+      document.getElementById("manualLyricQuery").value = `${track.artist ? track.artist + " - " : ""}${track.title}`;
+
+      const badgeMap = {
+        gdrive: "Google Диск",
+        telegram: "Telegram",
+        local: "iPhone / Офлайн"
+      };
+      document.getElementById("activeSourceBadge").innerHTML = `<span>${badgeMap[track.source] || "Локально"}</span>`;
+      updateCacheIcon(track.cached);
+
+      // Cover & Lyrics
+      setCoverArtwork(track.coverUrl, track.title);
+      applyLyricsToUI(track);
+
+      // Clean old object URL
+      if (activeObjectUrl) {
+        URL.revokeObjectURL(activeObjectUrl);
+        activeObjectUrl = null;
+      }
+
+      // Check offline blob first
+      const cachedEntry = await dbGet("blobs", track.id);
+      if (cachedEntry && cachedEntry.blob) {
+        activeObjectUrl = URL.createObjectURL(cachedEntry.blob);
+        audio.src = activeObjectUrl;
+      } else if (track.streamUrl) {
+        audio.src = track.streamUrl;
+      } else {
+        showToast("Аудиофайл недоступен");
+        return;
+      }
+
+      renderLibrary();
+      updateMediaSession(track);
+
+      if (autoplay) {
+        try {
+          await audio.play();
+          setPlayingUI(true);
+        } catch (err) {
+          setPlayingUI(false);
+          showToast("Нажмите Play для запуска");
+        }
+      }
+
+      // Auto-fetch cover & lyrics if missing
+      if (!track.coverUrl || (!track.syncedLyrics && !track.plainLyrics)) {
+        fetchCoverAndLyrics(track);
+      }
+    }
+
+    function setPlayingUI(playing) {
+      state.isPlaying = playing;
+      document.getElementById("iconPlay").style.display = playing ? "none" : "block";
+      document.getElementById("iconPause").style.display = playing ? "block" : "none";
+      document.getElementById("artworkFrame").classList.toggle("playing", playing);
+      if ("mediaSession" in navigator) {
+        navigator.mediaSession.playbackState = playing ? "playing" : "paused";
+      }
+    }
+
+    function updateMediaSession(track) {
+      if (!("mediaSession" in navigator)) return;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: track.title,
+        artist: track.artist || "Liquid Glass Player",
+        album: "Liquid Glass",
+        artwork: track.coverUrl ? [{ src: track.coverUrl, sizes: "512x512", type: "image/jpeg" }] : []
+      });
+    }
+
+    function playNext() {
+      if (!state.tracks.length) return;
+      if (state.shuffle && state.tracks.length > 1) {
+        let next = Math.floor(Math.random() * state.tracks.length);
+        if (next === state.currentIndex) next = (next + 1) % state.tracks.length;
+        playTrackAtIndex(next, true);
+      } else {
+        const next = (state.currentIndex + 1) % state.tracks.length;
+        playTrackAtIndex(next, true);
+      }
+    }
+
+    function playPrev() {
+      if (!state.tracks.length) return;
+      if (audio.currentTime > 3) {
+        audio.currentTime = 0;
+        return;
+      }
+      const prev = (state.currentIndex - 1 + state.tracks.length) % state.tracks.length;
+      playTrackAtIndex(prev, true);
+    }
+
+    function formatTime(sec) {
+      if (!isFinite(sec) || sec < 0) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s.toString().padStart(2, "0")}`;
+    }
+
+    // =========================================================================
+    // LIBRARY RENDERING
+    // =========================================================================
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function renderLibrary() {
+      const container = document.getElementById("trackListContainer");
+      const filtered = state.tracks.filter(t => {
+        if (state.filter === "all") return true;
+        if (state.filter === "cached") return t.cached;
+        return t.source === state.filter;
+      });
+
+      if (!filtered.length) {
+        container.innerHTML = `<div style="text-align:center;padding:32px 12px;color:var(--text-secondary);font-size:14px;">
+          Список пуст. Синхронизируйте Google Диск, Telegram или добавьте файлы с iPhone.
+        </div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(track => {
+        const realIndex = state.tracks.findIndex(x => x.id === track.id);
+        const isCurrent = realIndex === state.currentIndex;
+        const srcTag = track.source === "gdrive" ? "Google Диск" : track.source === "telegram" ? "Telegram" : "iPhone";
+        const cacheTag = track.cached ? " • Офлайн" : "";
+        return `
+          <div class="track-row ${isCurrent ? "current" : ""}" data-index="${realIndex}">
+            <img class="row-cover" src="${track.coverUrl || DEFAULT_COVER_SVG}" alt="" />
+            <div class="row-info">
+              <div class="row-title">${escapeHtml(track.title)}</div>
+              <div class="row-sub">${escapeHtml(track.artist || "Неизвестен")} • ${srcTag}${cacheTag}</div>
+            </div>
+            <div class="row-actions">
+              <button class="glass-btn mini-action" data-action="cache" data-id="${track.id}" title="Офлайн">${track.cached ? "✓" : "↓"}</button>
+              <button class="glass-btn mini-action" data-action="delete" data-id="${track.id}" title="Удалить">✕</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // =========================================================================
+    // EVENT WIRING & INITIALIZATION
+    // =========================================================================
+    async function initApp() {
+      await openDatabase();
+      loadSavedConfig();
+
+      const savedTracks = await dbGetAll("tracks");
+      state.tracks = savedTracks.sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+
+      // Seed demo track if empty so UI is immediately alive
+      if (state.tracks.length === 0) {
+        const demoTrack = {
+          id: "demo_lofi_1",
+          title: "Midnight City",
+          artist: "M83",
+          source: "local",
+          streamUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+          coverUrl: "",
+          syncedLyrics: "",
+          plainLyrics: "",
+          cached: false,
+          addedAt: Date.now()
+        };
+        state.tracks.push(demoTrack);
+        await dbPut("tracks", demoTrack);
+      }
+
+      renderLibrary();
+      setCoverArtwork(DEFAULT_COVER_SVG, "Liquid Glass");
+      if (state.tracks.length > 0) {
+        playTrackAtIndex(0, false);
+      }
+
+      // Navigation tabs
+      document.querySelectorAll(".dock-tab").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const tab = btn.dataset.tab;
+          document.querySelectorAll(".dock-tab").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          document.querySelectorAll(".view-screen").forEach(v => v.classList.remove("active"));
+          document.getElementById(`view-${tab}`).classList.add("active");
+        });
+      });
+
+      document.getElementById("miniLyricPreview").addEventListener("click", () => {
+        document.querySelector('.dock-tab[data-tab="lyrics"]').click();
+      });
+
+      // Transport controls
+      document.getElementById("btnPlayPause").addEventListener("click", async () => {
+        if (!audio.src && state.tracks.length > 0) {
+          await playTrackAtIndex(0, true);
+          return;
+        }
+        if (audio.paused) {
+          await audio.play();
+          setPlayingUI(true);
+        } else {
+          audio.pause();
+          setPlayingUI(false);
+        }
+      });
+
+      document.getElementById("btnNext").addEventListener("click", playNext);
+      document.getElementById("btnPrev").addEventListener("click", playPrev);
+
+      document.getElementById("btnShuffle").addEventListener("click", (e) => {
+        state.shuffle = !state.shuffle;
+        e.currentTarget.classList.toggle("toggled", state.shuffle);
+        showToast(state.shuffle ? "Перемешивание включено" : "Перемешивание выключено");
+      });
+
+      document.getElementById("btnRepeat").addEventListener("click", (e) => {
+        state.repeat = !state.repeat;
+        e.currentTarget.classList.toggle("toggled", state.repeat);
+        showToast(state.repeat ? "Повтор трека включён" : "Повтор выключен");
+      });
+
+      // Seek bar
+      const slider = document.getElementById("seekSlider");
+      slider.addEventListener("input", () => {
+        if (isFinite(audio.duration)) {
+          audio.currentTime = (slider.value / 1000) * audio.duration;
+        }
+      });
+
+      audio.addEventListener("timeupdate", () => {
+        if (isFinite(audio.duration) && audio.duration > 0) {
+          slider.value = Math.round((audio.currentTime / audio.duration) * 1000);
+          document.getElementById("timeCurrent").textContent = formatTime(audio.currentTime);
+          document.getElementById("timeTotal").textContent = formatTime(audio.duration);
+          syncLyricsHighlight(audio.currentTime);
+        }
+      });
+
+      audio.addEventListener("ended", () => {
+        if (state.repeat) {
+          audio.currentTime = 0;
+          audio.play();
+        } else {
+          playNext();
+        }
+      });
+
+      // Manual / Auto metadata & lyrics search
+      document.getElementById("btnAutoMeta").addEventListener("click", () => {
+        const track = state.tracks[state.currentIndex];
+        if (track) fetchCoverAndLyrics(track);
+      });
+
+      document.getElementById("btnManualLyricSearch").addEventListener("click", () => {
+        const track = state.tracks[state.currentIndex];
+        const q = document.getElementById("manualLyricQuery").value.trim();
+        if (track && q) fetchCoverAndLyrics(track, q);
+      });
+
+      // Click on lyric line to seek
+      document.getElementById("lyricsContainer").addEventListener("click", (e) => {
+        const line = e.target.closest(".lyric-line[data-time]");
+        if (line && isFinite(audio.duration)) {
+          audio.currentTime = parseFloat(line.dataset.time);
+          if (audio.paused) {
+            audio.play();
+            setPlayingUI(true);
+          }
+        }
+      });
+
+      // Cache current track
+      document.getElementById("btnCacheTrack").addEventListener("click", () => {
+        const track = state.tracks[state.currentIndex];
+        if (track) cacheCurrentOrTrack(track);
+      });
+
+      // Cloud Sync & Local Files
+      document.getElementById("btnSyncDrive").addEventListener("click", syncGoogleDrive);
+      document.getElementById("btnSyncTelegram").addEventListener("click", syncTelegram);
+
+      document.getElementById("btnAddLocalFiles").addEventListener("click", () => {
+        document.getElementById("localFileInput").click();
+      });
+
+      document.getElementById("localFileInput").addEventListener("change", (e) => {
+        handleLocalFiles(e.target.files);
+        e.target.value = "";
+      });
+
+      // Settings toggle & save
+      document.getElementById("toggleSettings").addEventListener("click", () => {
+        const box = document.getElementById("settingsFields");
+        const isOpen = box.classList.toggle("open");
+        document.getElementById("settingsArrow").textContent = isOpen ? "▲" : "▼";
+      });
+
+      document.getElementById("btnSaveConfig").addEventListener("click", saveConfigFromInputs);
+
+      // Filter chips
+      document.getElementById("filterChips").addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip-btn");
+        if (!chip) return;
+        state.filter = chip.dataset.filter;
+        document.querySelectorAll(".chip-btn").forEach(c => c.classList.remove("active"));
+        chip.classList.add("active");
+        renderLibrary();
+      });
+
+      // Library track clicks
+      document.getElementById("trackListContainer").addEventListener("click", async (e) => {
+        const actionBtn = e.target.closest(".mini-action");
+        if (actionBtn) {
+          e.stopPropagation();
+          const id = actionBtn.dataset.id;
+          const action = actionBtn.dataset.action;
+          const idx = state.tracks.findIndex(t => t.id === id);
+          if (idx === -1) return;
+
+          if (action === "cache") {
+            await cacheCurrentOrTrack(state.tracks[idx]);
+          } else if (action === "delete") {
+            await dbDelete("tracks", id);
+            await dbDelete("blobs", id);
+            state.tracks.splice(idx, 1);
+            if (state.currentIndex === idx) {
+              audio.pause();
+              setPlayingUI(false);
+              state.currentIndex = -1;
+            } else if (state.currentIndex > idx) {
+              state.currentIndex--;
+            }
+            renderLibrary();
+            showToast("Трек удалён");
+          }
+          return;
+        }
+
+        const row = e.target.closest(".track-row");
+        if (row) {
+          const idx = parseInt(row.dataset.index, 10);
+          playTrackAtIndex(idx, true);
+          document.querySelector('.dock-tab[data-tab="player"]').click();
+        }
+      });
+
+      // iOS Lock Screen Media Session handlers
+      if ("mediaSession" in navigator) {
+        navigator.mediaSession.setActionHandler("play", async () => {
+          await audio.play();
+          setPlayingUI(true);
+        });
+        navigator.mediaSession.setActionHandler("pause", () => {
+          audio.pause();
+          setPlayingUI(false);
+        });
+        navigator.mediaSession.setActionHandler("previoustrack", playPrev);
+        navigator.mediaSession.setActionHandler("nexttrack", playNext);
+        navigator.mediaSession.setActionHandler("seekto", (details) => {
+          if (details.seekTime != null && isFinite(audio.duration)) {
+            audio.currentTime = details.seekTime;
+          }
+        });
+      }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>

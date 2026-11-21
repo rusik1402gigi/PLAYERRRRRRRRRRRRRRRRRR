@@ -1,0 +1,22 @@
+{
+  "appId": "com.liquidglass.musicplayer",
+  "appName": "Liquid Glass",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "never",
+    "allowsLinkPreview": false,
+    "scrollEnabled": true,
+    "backgroundColor": "#07080c"
+  },
+  "server": {
+    "allowNavigation": [
+      "itunes.apple.com",
+      "*.mzstatic.com",
+      "lrclib.net",
+      "www.googleapis.com",
+      "*.googleusercontent.com",
+      "api.telegram.org"
+    ]
+  }
+}
