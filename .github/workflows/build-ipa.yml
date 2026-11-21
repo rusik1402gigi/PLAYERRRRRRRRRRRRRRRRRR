@@ -1,0 +1,108 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-ios-ipa:
+    name: Build Unsigned iOS .ipa
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Locate project directory
+        id: project
+        run: |
+          if [ -f "package.json" ]; then
+            echo "dir=." >> "$GITHUB_OUTPUT"
+          elif [ -f "liquid-glass-player/package.json" ]; then
+            echo "dir=liquid-glass-player" >> "$GITHUB_OUTPUT"
+          else
+            FOUND=$(find . -maxdepth 3 -name "package.json" | head -n 1)
+            if [ -n "$FOUND" ]; then
+              echo "dir=$(dirname "$FOUND")" >> "$GITHUB_OUTPUT"
+            else
+              echo "Error: package.json not found in repository"
+              exit 1
+            fi
+          fi
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Capacitor dependencies
+        working-directory: ${{ steps.project.outputs.dir }}
+        run: npm install
+
+      - name: Ensure www directory exists
+        working-directory: ${{ steps.project.outputs.dir }}
+        run: |
+          mkdir -p www
+          if [ ! -f "www/index.html" ] && [ -f "index.html" ]; then
+            cp index.html www/index.html
+          fi
+
+      - name: Add and sync iOS platform
+        working-directory: ${{ steps.project.outputs.dir }}
+        run: |
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
+          npx cap sync ios
+          if [ -f "ios/App/Podfile" ] && [ ! -d "ios/App/App.xcworkspace" ]; then
+            cd ios/App && pod install
+          fi
+
+      - name: Configure iOS Info.plist (Background Audio & Network)
+        working-directory: ${{ steps.project.outputs.dir }}
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          /usr/libexec/PlistBuddy -c "Delete :UIBackgroundModes" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes array" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :UIBackgroundModes:0 string audio" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Delete :NSAppTransportSecurity" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity dict" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :NSAppTransportSecurity:NSAllowsArbitraryLoads bool true" "$PLIST"
+
+      - name: Build Unsigned Xcode Archive
+        working-directory: ${{ steps.project.outputs.dir }}
+        run: |
+          if [ -d "ios/App/App.xcworkspace" ]; then
+            TARGET_FLAG="-workspace ios/App/App.xcworkspace"
+          else
+            TARGET_FLAG="-project ios/App/App.xcodeproj"
+          fi
+          xcodebuild $TARGET_FLAG \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$PWD/build/App.xcarchive" \
+            archive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM=""
+
+      - name: Package .ipa archive
+        working-directory: ${{ steps.project.outputs.dir }}
+        run: |
+          mkdir -p Payload
+          cp -r "$PWD/build/App.xcarchive/Products/Applications/App.app" Payload/
+          zip -qry LiquidGlassPlayer.ipa Payload
+
+      - name: Upload .ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiquidGlassPlayer-iOS-IPA
+          path: ${{ steps.project.outputs.dir }}/LiquidGlassPlayer.ipa
+          retention-days: 30
